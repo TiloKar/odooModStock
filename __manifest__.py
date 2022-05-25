@@ -5,18 +5,18 @@
 #
 
 {
-  'name': 'bbi mod stock 1',
-  'version': '0.1',
-  'category': 'Stock',
+  'name': 'bbi mod bom tilo',
+  'version': '0.10',
+  'category': 'MRP',
   'description': """
-     - Batchbuchungen aus csv als interner Transferauftrag auf Kommilager
+     - Batchbuchungen aus csv als BOM
 
     """,
   'depends': [
     'base',
-    'stock',
+    'mrp',
   ],
   'data': [
-    'views/stock_view_picking_form_bbi.xml',
+    'views/mrp_bom_form_bbi.xml',
   ],
 }
