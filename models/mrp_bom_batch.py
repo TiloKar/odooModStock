@@ -23,7 +23,7 @@ class MrpBom(models.Model):
         offset = 0 # zähler zeilen
         for row in raw_list:
             if offset > 0 and len(row) > 0: # nicht kopfzeile und leere ignorieren
-                str_row = row.decode(encoding='mbcs', errors='replace').split(';') # spaltenweise zerlegen, mbcs ist für windows PCs optimiert
+                str_row = row.decode(encoding='cp1252', errors='replace').split(';') # spaltenweise zerlegen, mbcs ist für windows PCs optimiert
                 str_list.append(str_row)
             offset = offset + 1
 

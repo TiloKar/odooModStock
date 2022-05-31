@@ -3,12 +3,16 @@
 {
   'name': 'bbi_mod_stock',
   'author': "Tilo Karczewski",
-  'version': '0.13',
+  'version': '0.15',
   'category': 'MRP',
   'description': """
      - Batchbuchungen aus csv als E-BOM, Mai 2022
      - Wizard Klasse für Popups, Mai 2022
      - Erweiterung Produkt um Webshopeigenschaft, umgezogen aus bbi_mod_stock in Mai 22
+     - TODO mbcs an linux systemen als codec nicht verfügbar, cp1252?
+     - TODO Verriegelung Batchbuchung gegen bereits gefüllte BOM_lines
+     - TODO Blendenmanagement mit virtuellen Produkten
+     - TODO Lagerorte
 
     """,
   'depends': [
