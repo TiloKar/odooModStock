@@ -7,7 +7,8 @@
     <field name="arch" type="xml">
       <xpath expr="//field[@name='type']" position="after">
         <field name='csv_file'/>
-        <button name='ebom_csv' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
+        <button name='makeLinesFromEbom' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
+        <button name='makeLinesFromKbom' type="object" string="Datei als k-BOM importieren" class="oe_highlight"/>
         <field name='output'/>
       </xpath>
     </field>

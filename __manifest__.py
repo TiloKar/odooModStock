@@ -9,10 +9,13 @@
      - Batchbuchungen aus csv als E-BOM, Mai 2022
      - Wizard Klasse für Popups, Mai 2022
      - Erweiterung Produkt um Webshopeigenschaft, umgezogen aus bbi_mod_stock in Mai 22
-     - TODO mbcs an linux systemen als codec nicht verfügbar, cp1252?
-     - TODO Verriegelung Batchbuchung gegen bereits gefüllte BOM_lines
-     - TODO Blendenmanagement mit virtuellen Produkten
+     - mbcs an linux systemen als codec nicht verfügbar, cp1252?, gefixt Juni 22
+     - Verriegelung Batchbuchung gegen bereits gefüllte BOM_lines ,Juni 22
+     - TODO K-BOM import testen und wenn möglich mit einem importformat
      - TODO Lagerorte
+     - TODO Blendenmanagement mit virtuellen Produkten,
+     kann als allgemeine rekursive Methode auf deep compare von BOMS realisiert werden,
+     Hinweis auf Duplikat-Produkt
 
     """,
   'depends': [
