@@ -90,6 +90,8 @@ class MrpBom(models.Model):
         boms = self.env['mrp.bom'].search([])
         temp_j = 0
         treffer = 0
+        temp_id = 0
+        treffer_ids = []
         treffer_BoMs = ""
 
         sequenz_self = 0
@@ -111,10 +113,30 @@ class MrpBom(models.Model):
                     Sequenz= Sequenz +1
             if Sequenz == sequenz_self:
                 treffer = treffer + 1
+                treffer_ids.append(boms[temp_j])
+                temp_id = temp_id + 1
                 treffer_BoMs = treffer_BoMs + str(boms[temp_j].product_tmpl_id.name) + "\n"
             message = message + "Sequenz (Lines): " + str(Sequenz) + "\n\n"
-        message = message + "Treffer: " + str(treffer) + "\n" + "Treffer BoMs: " + "\n" + treffer_BoMs
-        # message = "BoM_ID: " + str(boms) + "\n" + "BoM_Linees an 1: " + str(boms_linees) +  "\n" + "Sequenz (Lines): " + str(Sequenz) + "\n"
+        message = message + "Treffer: " + str(treffer) + "\n" + "Treffer BoMs: " + "\n" + treffer_BoMs  + "\n" + "IDs: " + str(treffer_ids)
+
+        for m in treffer_ids:
+            for n in m.bom_line_ids:
+                for o in self:
+                    for p in o.bom_line_ids:
+                        if m.bom_line_ids == o.bom_line_ids:
+                            message = message + "nice"
+                        else:
+                            message = message + "not nice"
+                            message_id = self.env['bbi.message.wizard'].create({'message': message})
+                            return {
+                                'name': 'Test',
+                                'type': 'ir.actions.act_window',
+                                'view_mode': 'form',
+                                'res_model': 'bbi.message.wizard',
+                                'res_id': message_id.id,
+                                'target': 'new'
+                                }
+
         message_id = self.env['bbi.message.wizard'].create({'message': message})
         return {
             'name': 'Test',
