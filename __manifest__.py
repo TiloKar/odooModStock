@@ -21,6 +21,7 @@
   ],
   'data': [
     'views/mrp_bom_form_bbi.xml',
+    'views/mrp_production_form_bbi.xml',
     'views/bbi_message_wizard.xml',
     'security/ir.model.access.csv',
     'views/product_template_form_view_bbi.xml',

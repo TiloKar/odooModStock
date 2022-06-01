@@ -9,6 +9,7 @@
         <field name='csv_file'/>
         <button name='ebom_csv' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
         <field name='output'/>
+        <button name='check_bom' type="object" string="Nach vorhandener BoM suchen" class="oe_highlight"/>
       </xpath>
     </field>
   </record>

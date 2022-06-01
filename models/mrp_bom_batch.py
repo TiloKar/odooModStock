@@ -16,6 +16,8 @@ class MrpBom(models.Model):
     csv_file = fields.Binary(string='CSV File')
     output = fields.Char(string='internal output')
 
+
+
     def ebom_csv(self):
         raw = base64.b64decode(self.csv_file) #vorbereitung binary
         raw_list = raw.split(b'\n') #zerlegen zeilenweise
@@ -68,4 +70,57 @@ class MrpBom(models.Model):
                 'res_model': 'bbi.message.wizard',
                 'res_id': message_id.id,
                 'target': 'new'
+            }
+
+    def _check_bom_lines(self):
+        message ="test";
+        message_id = self.env['bbi.message.wizard'].create({'message': message})
+        return {
+            'name': 'Test',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'bbi.message.wizard',
+            'res_id': message_id.id,
+            'target': 'new'
+            }
+
+    def check_bom(self):
+        message = ""
+
+        boms = self.env['mrp.bom'].search([])
+        temp_j = 0
+        treffer = 0
+        treffer_BoMs = ""
+
+        sequenz_self = 0
+
+        for k in self:
+            for l in k.bom_line_ids:
+                if l.sequence > 0:
+                    sequenz_self= sequenz_self +1
+
+        message = "Aktuelle BoM: " + str(self) +  "\n" + "Aktuelle BoM Sequenz" + str(sequenz_self) + "\n" + "BoM_ID: " + str(boms) + "\n"
+
+        for j in boms:
+            message = message + "BoMs: " + str(boms[temp_j]) +  "\n"
+            temp_j = temp_j + 1
+            Sequenz = 0
+            message = message + "BoM_Lines: " + str(j.bom_line_ids) +  "\n"
+            for i in j.bom_line_ids:
+                if i.sequence > 0:
+                    Sequenz= Sequenz +1
+            if Sequenz == sequenz_self:
+                treffer = treffer + 1
+                treffer_BoMs = treffer_BoMs + str(boms[temp_j].product_tmpl_id.name) + "\n"
+            message = message + "Sequenz (Lines): " + str(Sequenz) + "\n\n"
+        message = message + "Treffer: " + str(treffer) + "\n" + "Treffer BoMs: " + "\n" + treffer_BoMs
+        # message = "BoM_ID: " + str(boms) + "\n" + "BoM_Linees an 1: " + str(boms_linees) +  "\n" + "Sequenz (Lines): " + str(Sequenz) + "\n"
+        message_id = self.env['bbi.message.wizard'].create({'message': message})
+        return {
+            'name': 'Test',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'bbi.message.wizard',
+            'res_id': message_id.id,
+            'target': 'new'
             }

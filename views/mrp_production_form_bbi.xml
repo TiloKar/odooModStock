@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="mrp_production_form_bbi" model="ir.ui.view">
+    <field name="name">mrp.production.form.bbi</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='date_planned_start']" position="after">
+        <button name='check_bom' type="object" string="Nach vorhandener BoM suchen" class="oe_highlight"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
