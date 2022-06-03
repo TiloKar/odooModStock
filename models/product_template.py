@@ -4,7 +4,26 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     webshop = fields.Boolean(
+        string = 'Im Webshop',
         default=False,
         help='Check this, if product is sold via bbi webshop',
         store=True,
         readonly=False,)
+
+    isSparePart = fields.Boolean(
+        string = 'Ersatzteil',
+        default=False,
+        help='Check this, if product will be part of spare part BOM',
+        store=True,
+        readonly=False,)
+
+    bbiStockLocation_id = fields.Many2one(
+        'bbi.stock.location',
+        string="BBI Lagerort",
+        required = True,)
+
+    locationName = fields.Char(
+        related='bbiStockLocation_id.name',
+        string="BBI Lagerort",
+        readonly=True,
+        store=False,)

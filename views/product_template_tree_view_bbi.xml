@@ -6,7 +6,9 @@
     <field name="inherit_id" ref="product.product_template_tree_view"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='default_code']" position="after">
+        <field name='locationName' optional="show"/>
         <field name='webshop' optional="show"/>
+        <field name='isSparePart' optional="show"/>
       </xpath>
     </field>
   </record>

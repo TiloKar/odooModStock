@@ -11,9 +11,11 @@
      - Erweiterung Produkt um Webshopeigenschaft, umgezogen aus bbi_mod_stock in Mai 22
      - mbcs an linux systemen als codec nicht verfügbar, cp1252?, gefixt Juni 22
      - Verriegelung Batchbuchung gegen bereits gefüllte BOM_lines ,Juni 22
-     - TODO K-BOM import testen und wenn möglich mit einem importformat
-     - TODO Lagerorte
+     - Ersatzteil Haken am Produkt, Lagerorte, Juni 22
+     - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
+     - TODO K-BOM import testen und wenn möglich mit einem importformat, Idee strukturstücklisten und auto-anlegen unter K-id
      - TODO Blendenmanagement mit virtuellen Produkten,
+     - TODO Schweißdoku in BOM Kopf und Zertifikate in BOM-line, anzeige in MO line, wenn in bom-line gehakt und im bom kopf gehakt
      kann als allgemeine rekursive Methode auf deep compare von BOMS realisiert werden,
      Hinweis auf Duplikat-Produkt
 
@@ -28,5 +30,7 @@
     'security/ir.model.access.csv',
     'views/product_template_form_view_bbi.xml',
     'views/product_template_tree_view_bbi.xml',
+    'views/bbi_location_menu_action.xml',
+    #'views/stock_menu_location.xml',
   ],
 }
