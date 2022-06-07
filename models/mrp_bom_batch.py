@@ -1,5 +1,9 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError, ValidationError
 import csv, base64
+from odoo.osv.expression import AND, NEGATIVE_TERM_OPERATORS
+from odoo.tools import float_round
+from collections import defaultdict
 
 class BbiMessageWizard(models.TransientModel):
     _name = 'bbi.message.wizard'
@@ -73,19 +77,20 @@ class MrpBom(models.Model):
             }
 
 
-    def check_bom(self):
+    @api.constrains('product_id', 'product_tmpl_id', 'bom_line_ids', 'byproduct_ids', 'operation_ids')
+    def _check_bom(self):
+
         message = ""
         boms = self.env['mrp.bom'].search([])
         sequenz_self = 0
         temp= 0
+        test = False
 
         for k in self:
             for l in k.bom_line_ids:
                 if l.sequence > 0:
                     sequenz_self= sequenz_self +1
-
-        message = "Aktuelle BoM: " + str(self) +  "\n" + "Aktuelle BoM Sequenz: " + str(sequenz_self) + "\n\n"
-
+        message = "Aktuelle BoM: " + str(self.product_tmpl_id.name) + "\n\n"
         for j in boms:
             temp = 0
             for i in j.bom_line_ids:
@@ -95,15 +100,7 @@ class MrpBom(models.Model):
                             temp = temp + 1
                             break
             if temp == sequenz_self:
+                test = True
                 message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
-
-
-        message_id = self.env['bbi.message.wizard'].create({'message': message})
-        return {
-            'name': 'Test',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'bbi.message.wizard',
-            'res_id': message_id.id,
-            'target': 'new'
-            }
+        if test == True:
+            raise ValidationError(_(str(message)))
