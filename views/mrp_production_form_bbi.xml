@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="mrp_production_form_bbi" model="ir.ui.view">
+    <field name="name">mrp.production.form.bbi</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='user_id']" position="after">
+        <field name='weldDoc'/>
+        <field name='materialCerts'/>
+      </xpath>
+      <xpath expr="//page[@name='components']/field[@name='move_raw_ids']/tree" position="inside">
+        <field name='materialCerts'
+          attrs="{'column_invisible': [('parent.materialCerts', '=', False)]}"
+        />
+      </xpath>
+    </field>
+  </record>
+</odoo>

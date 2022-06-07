@@ -3,7 +3,7 @@
 {
   'name': 'bbi_mod_stock',
   'author': "Tilo Karczewski",
-  'version': '0.15',
+  'version': '0.17',
   'category': 'MRP',
   'description': """
      - Batchbuchungen aus csv als E-BOM, Mai 2022
@@ -14,10 +14,12 @@
      - Ersatzteil Haken am Produkt, Lagerorte, Juni 22
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
      - TODO K-BOM import testen und wenn möglich mit einem importformat, Idee strukturstücklisten und auto-anlegen unter K-id
-     - TODO Blendenmanagement mit virtuellen Produkten,
-     - TODO Schweißdoku in BOM Kopf und Zertifikate in BOM-line, anzeige in MO line, wenn in bom-line gehakt und im bom kopf gehakt
+     - Schweißdoku in BOM Kopf und produktberührend in BOM-line, anzeige in MO line als "MCert",
+      wenn in bom-line gehakt und im MO kopf gehakt, Juni 22
+     - TODO per xpath in Qweb pdf auch anzeigen,	Externe ID: mrp.report_mrporder (einstellungen...technisch)
+     - TODO Blendenmanagement mit virtuellen Produkten,TODO Verriegelung gegen erzeugung BOMs
      kann als allgemeine rekursive Methode auf deep compare von BOMS realisiert werden,
-     Hinweis auf Duplikat-Produkt
+     Hinweis auf Duplikat-Produkt, Hnn ist in seinem branch dran
 
     """,
   'depends': [
@@ -26,11 +28,11 @@
   ],
   'data': [
     'views/mrp_bom_form_bbi.xml',
+    'views/mrp_production_form_bbi.xml',
     'views/bbi_message_wizard.xml',
     'security/ir.model.access.csv',
     'views/product_template_form_view_bbi.xml',
     'views/product_template_tree_view_bbi.xml',
     'views/bbi_location_menu_action.xml',
-    #'views/stock_menu_location.xml',
   ],
 }

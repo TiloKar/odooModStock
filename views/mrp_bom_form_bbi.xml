@@ -5,11 +5,16 @@
     <field name="model">mrp.bom</field>
     <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
     <field name="arch" type="xml">
-      <xpath expr="//field[@name='type']" position="after">
+      <xpath expr="//div[@class='o_row']" position="after">
         <field name='csv_file'/>
-        <button name='makeLinesFromEbom' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
-        <button name='makeLinesFromKbom' type="object" string="Datei als k-BOM importieren" class="oe_highlight"/>
         <field name='output'/>
+        <p>
+          <button name='makeLinesFromEbom' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
+          <button name='makeLinesFromKbom' type="object" string="Datei als k-BOM importieren" class="oe_highlight"/>
+        </p>
+      </xpath>
+      <xpath expr="//field[@name='bom_line_ids']/tree/field[@name='product_uom_id']" position="after">
+        <field name='materialCerts'/>
       </xpath>
     </field>
   </record>

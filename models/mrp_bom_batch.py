@@ -1,19 +1,11 @@
 from odoo import api, fields, models
 import csv, base64
 
-class BbiMessageWizard(models.TransientModel):
-    _name = 'bbi.message.wizard'
-    _description = "Show Message"
-
-    message = fields.Text('Message', required=True)
-
-    def action_close(self):
-        return {'type': 'ir.actions.act_window_close'}
-
 class MrpBom(models.Model):
     _inherit = 'mrp.bom'
 
     csv_file = fields.Binary(string='CSV File')
+
     output = fields.Char(string='internal output')
 
     def makeLinesFromKbom(self):

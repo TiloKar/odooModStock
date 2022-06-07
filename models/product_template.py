@@ -20,7 +20,7 @@ class ProductTemplate(models.Model):
     bbiStockLocation_id = fields.Many2one(
         'bbi.stock.location',
         string="BBI Lagerort",
-        required = True,)
+        required = False,)
 
     locationName = fields.Char(
         related='bbiStockLocation_id.name',
