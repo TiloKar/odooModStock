@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <template id="report_mrp_order_bbi" inherit_id="mrp.report_mrporder">
+      <xpath expr="//t[@t-call='web.internal_layout']/div/div[@class='row mt32 mb32']" position="inside">
+        <div class="col-3" t-if="o.weldDoc == True">
+          <strong>Schweißdoku</strong><br/>
+          !! ja !!
+        </div>
+      </xpath>
+      <xpath expr="//table[@t-if='o.move_raw_ids']/thead/tr" position="inside">
+        <th>Zertifikate</th>
+      </xpath>
+      <xpath expr="//t[@t-if='o.move_raw_ids']/tr[@t-as='raw_line']" position="inside">
+        <td>
+          <p t-if="raw_line.materialCerts and o.materialCerts">
+            !! ja !!
+          </p>
+          <p t-else="">
+            nein
+          </p>
+        </td>
+      </xpath>
+    </template>
+  </data>
+</odoo>
