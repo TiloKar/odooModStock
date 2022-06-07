@@ -72,70 +72,31 @@ class MrpBom(models.Model):
                 'target': 'new'
             }
 
-    def _check_bom_lines(self):
-        message ="test";
-        message_id = self.env['bbi.message.wizard'].create({'message': message})
-        return {
-            'name': 'Test',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'bbi.message.wizard',
-            'res_id': message_id.id,
-            'target': 'new'
-            }
 
     def check_bom(self):
         message = ""
-
         boms = self.env['mrp.bom'].search([])
-        temp_j = 0
-        treffer = 0
-        temp_id = 0
-        treffer_ids = []
-        treffer_BoMs = ""
-
         sequenz_self = 0
+        temp= 0
 
         for k in self:
             for l in k.bom_line_ids:
                 if l.sequence > 0:
                     sequenz_self= sequenz_self +1
 
-        message = "Aktuelle BoM: " + str(self) +  "\n" + "Aktuelle BoM Sequenz" + str(sequenz_self) + "\n" + "BoM_ID: " + str(boms) + "\n"
+        message = "Aktuelle BoM: " + str(self) +  "\n" + "Aktuelle BoM Sequenz: " + str(sequenz_self) + "\n\n"
 
         for j in boms:
-            message = message + "BoMs: " + str(boms[temp_j]) +  "\n"
-            temp_j = temp_j + 1
-            Sequenz = 0
-            message = message + "BoM_Lines: " + str(j.bom_line_ids) +  "\n"
+            temp = 0
             for i in j.bom_line_ids:
-                if i.sequence > 0:
-                    Sequenz= Sequenz +1
-            if Sequenz == sequenz_self:
-                treffer = treffer + 1
-                treffer_ids.append(boms[temp_j])
-                temp_id = temp_id + 1
-                treffer_BoMs = treffer_BoMs + str(boms[temp_j].product_tmpl_id.name) + "\n"
-            message = message + "Sequenz (Lines): " + str(Sequenz) + "\n\n"
-        message = message + "Treffer: " + str(treffer) + "\n" + "Treffer BoMs: " + "\n" + treffer_BoMs  + "\n" + "IDs: " + str(treffer_ids)
+                for k in self:
+                    for l in k.bom_line_ids:
+                        if ((k.bom_line_ids.product_tmpl_id == j.bom_line_ids.product_tmpl_id) and (j != self) and (i.product_qty == l.product_qty)):
+                            temp = temp + 1
+                            break
+            if temp == sequenz_self:
+                message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
 
-        for m in treffer_ids:
-            for n in m.bom_line_ids:
-                for o in self:
-                    for p in o.bom_line_ids:
-                        if m.bom_line_ids == o.bom_line_ids:
-                            message = message + "nice"
-                        else:
-                            message = message + "not nice"
-                            message_id = self.env['bbi.message.wizard'].create({'message': message})
-                            return {
-                                'name': 'Test',
-                                'type': 'ir.actions.act_window',
-                                'view_mode': 'form',
-                                'res_model': 'bbi.message.wizard',
-                                'res_id': message_id.id,
-                                'target': 'new'
-                                }
 
         message_id = self.env['bbi.message.wizard'].create({'message': message})
         return {
