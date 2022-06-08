@@ -2,7 +2,7 @@
 
 {
   'name': 'bbi_mod_stock',
-  'author': "Tilo Karczewski",
+  'author': "Hanning Liu, Tilo Karczewski",
   'version': '0.19',
   'category': 'MRP',
   'description': """
@@ -14,7 +14,7 @@
      - Ersatzteil Haken am Produkt, Lagerorte, Juni 22
      - Schweißdoku in BOM Kopf und produktberührend in BOM-line, anzeige in MO line als "MCert",
       wenn in bom-line gehakt und im MO kopf gehakt, per xpath in Qweb pdf angezeigt, Juni 22
-     - TODO K-BOM import aus excel normieren für MrpBom.addLinesFromBom(self,list)  
+     - TODO K-BOM import aus excel normieren für MrpBom.addLinesFromBom(self,list)
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
      - Idee strukturstücklisten aus solid works parsen und auto-anlegen der produkte unter K-id
      - TODO Blendenmanagement mit virtuellen Produkten,TODO Verriegelung gegen erzeugung BOMs
