@@ -122,6 +122,7 @@ class MrpBom(models.Model):
         message = ""
         nLines = len(self.bom_line_ids)
         boms = self.env['mrp.bom'].search(['len(bom_line_ids)', '!=', nLines])
+        raise ValidationError(_(str(len(boms))))
         sequenz_self = 0
         temp= 0
         test = False
@@ -142,13 +143,13 @@ class MrpBom(models.Model):
             if temp == sequenz_self:
                 test = True
                 message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
-        message_id = self.env['bbi.message.wizard'].create({'message': message})
-        if test == True:
-            return {
-                'name': 'Fehler in der BOM!',
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'bbi.message.wizard',
-                'res_id': message_id.id,
-                'target': 'new'
-                }
+        #message_id = self.env['bbi.message.wizard'].create({'message': message})
+        #if test == True:
+        #    return {
+        #        'name': 'Fehler in der BOM!',
+        #        'type': 'ir.actions.act_window',
+        #        'view_mode': 'form',
+        #        'res_model': 'bbi.message.wizard',
+        #        'res_id': message_id.id,
+        #        'target': 'new'
+        #        }
