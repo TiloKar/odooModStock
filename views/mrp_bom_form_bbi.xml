@@ -10,6 +10,7 @@
         <field name='output'/>
         <p>
           <button name='makeLinesFromEbom' type="object" string="Datei als e-BOM importieren" class="oe_highlight"/>
+          <br/><br/>
           <button name='makeLinesFromKbom' type="object" string="Datei als k-BOM importieren" class="oe_highlight"/>
         </p>
       </xpath>

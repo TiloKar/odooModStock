@@ -1,5 +1,6 @@
 from odoo import api, fields, models
-import csv, base64
+import csv, base64, sys
+from odoo.exceptions import ValidationError
 
 class MrpBom(models.Model):
     _inherit = 'mrp.bom'
@@ -9,18 +10,14 @@ class MrpBom(models.Model):
     output = fields.Char(string='internal output')
 
     def makeLinesFromKbom(self):
-        message_id = self.env['bbi.message.wizard'].create({'message': 'muss noch gebaut werden'})
-        return {
-            'name': 'Fehler in der BOM!',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'bbi.message.wizard',
-            'res_id': message_id.id,
-            'target': 'new'
-        }
+        raise ValidationError('muss noch gebaut werden')
 
     def makeLinesFromEbom(self):
-        raw = base64.b64decode(self.csv_file) #vorbereitung binary
+        try:
+            raw = base64.b64decode(self.csv_file) #vorbereitung binary
+        except:
+            raise ValidationError('Datei erst hochladen!')
+
         raw_list = raw.split(b'\n') #zerlegen zeilenweise
         str_list = [] # wird ein 2-dimensionales array aller zelleneinträge als rohstrings
         rowNum = 0 # zähler zeilen
@@ -62,15 +59,7 @@ class MrpBom(models.Model):
                 rowNum+= 1
 
         if errors != 0:
-            message_id = self.env['bbi.message.wizard'].create({'message': message})
-            return {
-                'name': 'Fehler in der BOM!',
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'bbi.message.wizard',
-                'res_id': message_id.id,
-                'target': 'new'
-            }
+            raise ValidationError(message)
         else:
             return self.addLinesFromBom(list)
 
@@ -106,50 +95,35 @@ class MrpBom(models.Model):
             self.output = len(self.bom_line_ids)
             return True
         else:
-            message_id = self.env['bbi.message.wizard'].create({'message': message})
-            return {
-                'name': 'Fehler in der BOM!',
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'bbi.message.wizard',
-                'res_id': message_id.id,
-                'target': 'new'
-            }
+            raise ValidationError(message)
+
+    #ausformulierung der Prüfbedingung für bom.lines, interne id und qty müssen gleich sein
+    def bom_line_duplicates_condition(self, bom, line):
+        for bom_line in bom.bom_line_ids:
+            if self.bom_line_ids[line].product_qty == bom_line.product_qty and self.bom_line_ids[line].product_tmpl_id == bom_line.product_tmpl_id:
+                return True
+        return False
+
+    #prüft rekursiv, ob die BOM schon strukturgleich existiert
+    def check_bom_duplicates_rek(self, boms, line):
+        rek_boms = boms.filtered(lambda bom: self.bom_line_duplicates_condition(bom, line))
+        if len(rek_boms) == 0:
+            return False #abbruch, die kandidatenliste ist leer, obwohl noch nicht alle lines geprüft worden
+        if (line + 1) < len(self.bom_line_ids):
+            return self.check_bom_duplicates_rek(rek_boms, line + 1) #falls noch ungeprüfte lines existieren und kandidaten verfügbar sind
+        #wenn der code bis hierhin kommt (alle lines sind durch und es gibt noch Kandidaten) dann Exception!
+        message = "bom duplicates exists for: \n\n"
+        for bom in rek_boms :
+            message += "scancode: " + str(bom.product_tmpl_id.default_code) + " name: " + str(bom.product_tmpl_id.name) + "\n"
+        raise ValidationError(str(message))
 
     @api.constrains('product_id', 'product_tmpl_id', 'bom_line_ids', 'byproduct_ids', 'operation_ids')
-    def _check_bom_test(self):
-
-        message = ""
-        nLines = len(self.bom_line_ids)
-        boms = self.env['mrp.bom'].search(['len(bom_line_ids)', '!=', nLines])
-        raise ValidationError(_(str(len(boms))))
-        sequenz_self = 0
-        temp= 0
-        test = False
-
-        for k in self:
-            for l in k.bom_line_ids:
-                if l.sequence > 0:
-                    sequenz_self= sequenz_self +1
-        message = "Aktuelle BoM: " + str(self.product_tmpl_id.name) + "\n\n"
-        for j in boms: # j alle boms überhaupt
-            temp = 0
-            for i in j.bom_line_ids: # alle lines der j-boms
-                for k in self: #k ist die aktuelle bom
-                    for l in k.bom_line_ids: # l sind lindes der aktuellen bom
-                        if ((i.product_tmpl_id == l.product_tmpl_id) and (j != self) and (i.product_qty == l.product_qty)):
-                            temp = temp + 1
-                            break
-            if temp == sequenz_self:
-                test = True
-                message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
-        #message_id = self.env['bbi.message.wizard'].create({'message': message})
-        #if test == True:
-        #    return {
-        #        'name': 'Fehler in der BOM!',
-        #        'type': 'ir.actions.act_window',
-        #        'view_mode': 'form',
-        #        'res_model': 'bbi.message.wizard',
-        #        'res_id': message_id.id,
-        #        'target': 'new'
-        #        }
+    def _check_bom_duplicates(self):
+        #alle kandidaten in boms aufnehmen die gleiche zeilenzahl haben und nicht die bom selbst sind
+        boms = self.env['mrp.bom'].search([]).filtered(lambda b: len(b.bom_line_ids) == len(self.bom_line_ids) and b.product_tmpl_id.id != self.product_tmpl_id.id)
+        # bei leere boms gleich hier raus sonst in rekusion einsteigen
+        if len(self.bom_line_ids) == 0:
+            raise ValidationError(str('leere Stücklisten machen so gar keinen Sinn!'))
+        if len(boms) == 0:
+            return False
+        return self.check_bom_duplicates_rek(boms, 0)
