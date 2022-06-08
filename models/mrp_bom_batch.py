@@ -104,18 +104,11 @@ class MrpBom(models.Model):
                 message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
         message_id = self.env['bbi.message.wizard'].create({'message': message})
         if test == True:
-            return {
-                'name': 'Fehler in der BOM!',
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'bbi.message.wizard',
-                'res_id': message_id.id,
-                'target': 'new'
-            }
-            #raise ValidationError(_(str(message)))
+            raise ValidationError(_(str(message)))
 
     @api.constrains('product_id', 'product_tmpl_id', 'bom_line_ids', 'byproduct_ids', 'operation_ids')
     def _check_bom_test(self):
+        self.check_bom()
 
     def check_bom(self):
 
