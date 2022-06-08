@@ -115,3 +115,40 @@ class MrpBom(models.Model):
                 'res_id': message_id.id,
                 'target': 'new'
             }
+
+    @api.constrains('product_id', 'product_tmpl_id', 'bom_line_ids', 'byproduct_ids', 'operation_ids')
+    def _check_bom_test(self):
+
+        message = ""
+        nLines = len(self.bom_line_ids)
+        boms = self.env['mrp.bom'].search(['len(bom_line_ids)', '!=', nLines])
+        sequenz_self = 0
+        temp= 0
+        test = False
+
+        for k in self:
+            for l in k.bom_line_ids:
+                if l.sequence > 0:
+                    sequenz_self= sequenz_self +1
+        message = "Aktuelle BoM: " + str(self.product_tmpl_id.name) + "\n\n"
+        for j in boms: # j alle boms überhaupt
+            temp = 0
+            for i in j.bom_line_ids: # alle lines der j-boms
+                for k in self: #k ist die aktuelle bom
+                    for l in k.bom_line_ids: # l sind lindes der aktuellen bom
+                        if ((i.product_tmpl_id == l.product_tmpl_id) and (j != self) and (i.product_qty == l.product_qty)):
+                            temp = temp + 1
+                            break
+            if temp == sequenz_self:
+                test = True
+                message = message + str(j.product_tmpl_id.name) + " gibt es schon! \n"
+        message_id = self.env['bbi.message.wizard'].create({'message': message})
+        if test == True:
+            return {
+                'name': 'Fehler in der BOM!',
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'bbi.message.wizard',
+                'res_id': message_id.id,
+                'target': 'new'
+                }
