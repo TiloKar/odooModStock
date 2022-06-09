@@ -18,6 +18,7 @@
       strukturgleiche BOMs,als allgemeine rekursive Methode auf deep compare von BOMS realisiert,
       Hinweis auf Duplikat-Produkt in validation error, Juni 22
      - K-BOM import aus excel ergänzt, constraits auf bom_line ids eingekürzt, Juni 22
+     - E-BOM auch für interne transfers verfügbar, Juni 22
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
      - TODO Idee strukturstücklisten aus solid works parsen
      - TODO idee: auto-anlegen der produkte unter K-Referenz und name bei auswahl von autoCreateProducts
