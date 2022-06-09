@@ -5,7 +5,7 @@
     <field name="res_model">bbi.stock.location</field>
     <field name="view_mode">tree,form</field>
   </record>
-  <menuitem id="bbi_stock_location_open_menu_form" name="bbi Lagerorte" parent="stock.menu_stock_config_settings" sequence="1">
-      <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form"/>
+  <menuitem id="bbi_stock_location_open_menu_form" name="bbi Lagerorte" parent="stock.menu_stock_config_settings" sequence="1" groups="stock.group_stock_manager">
+      <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form" groups="stock.group_stock_manager"/>
   </menuitem>
 </odoo>
