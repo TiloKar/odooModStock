@@ -16,7 +16,6 @@ class MrpBom(models.Model):
         store=False,
         readonly=False,)
 
-
     #bereitet Liste aus Konstruktions exceldatei Stückliste vor
     def makeLinesFromKbom(self):
         try:
@@ -43,6 +42,7 @@ class MrpBom(models.Model):
 
     #bereitet Liste aus Elo csv Stückliste vor
     def makeLinesFromEbom(self):
+
         try:
             raw = base64.b64decode(self.csv_file) #vorbereitung binary
         except:
@@ -62,10 +62,6 @@ class MrpBom(models.Model):
                     else:
                         errors += 1
                         message += " file-row " + str(str_row) + " not valid\n"
-                #else:
-                    #errors += 1
-                    #message += " file-row " + str(rowNum) + " not valid\n"
-                    #leerzeilen ignorieren
             rowNum+= 1
 
         if len(str_list) == 0 :

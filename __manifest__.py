@@ -35,5 +35,6 @@
     'views/product_template_tree_view_bbi.xml',
     'views/bbi_location_menu_action.xml',
     'report/report_mrp_order.xml',
+    'views/stock_picking_form_bbi.xml',
   ],
 }
