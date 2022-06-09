@@ -14,12 +14,13 @@
      - Ersatzteil Haken am Produkt, Lagerorte, Juni 22
      - Schweißdoku in BOM Kopf und produktberührend in BOM-line, anzeige in MO line als "MCert",
       wenn in bom-line gehakt und im MO kopf gehakt, per xpath in Qweb pdf angezeigt, Juni 22
-      - Blendenmanagement mit virtuellen Produkten, Verriegelung gegen bereits erzeugungte,
+     - Blendenmanagement mit virtuellen Produkten, Verriegelung gegen bereits erzeugungte,
       strukturgleiche BOMs,als allgemeine rekursive Methode auf deep compare von BOMS realisiert,
       Hinweis auf Duplikat-Produkt in validation error, Juni 22
-     - TODO K-BOM import aus excel normieren für MrpBom.addLinesFromBom(self,list)
+     - K-BOM import aus excel ergänzt, constraits auf bom_line ids eingekürzt, Juni 22
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
-     - TODO Idee strukturstücklisten aus solid works parsen und auto-anlegen der produkte unter K-id
+     - TODO Idee strukturstücklisten aus solid works parsen
+     - TODO idee: auto-anlegen der produkte unter K-Referenz und name bei auswahl von autoCreateProducts
 
     """,
   'depends': [

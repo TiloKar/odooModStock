@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-import csv, base64, sys
+import csv, base64, sys, xlrd
 from odoo.exceptions import ValidationError
 
 class MrpBom(models.Model):
@@ -9,9 +9,39 @@ class MrpBom(models.Model):
 
     output = fields.Char(string='internal output')
 
-    def makeLinesFromKbom(self):
-        raise ValidationError('muss noch gebaut werden')
+    autoCreateProducts = fields.Boolean(
+        string = 'auto create',
+        default=False,
+        help='Check this, if batch read should create missing products automatically, handle with care!',
+        store=False,
+        readonly=False,)
 
+
+    #bereitet Liste aus Konstruktions exceldatei Stückliste vor
+    def makeLinesFromKbom(self):
+        try:
+            raw = base64.decodestring(self.csv_file) #vorbereitung binary
+        except:
+            raise ValidationError('Datei erst hochladen!')
+        try:
+            book = xlrd.open_workbook(file_contents=raw)
+        except:
+            raise ValidationError('Datei Fehler!')
+
+        sheet = book.sheets()[0]
+
+        list = []
+        for i in range(sheet.nrows):
+            if i < 2:
+                continue
+            entry = []
+            entry.append("{:.0f}".format(sheet.cell(i, 1).value))
+            entry.append(str(sheet.cell(i, 2).value).replace('\n',''))
+            list.append(entry)
+
+        return self.addLinesFromBom(list)
+
+    #bereitet Liste aus Elo csv Stückliste vor
     def makeLinesFromEbom(self):
         try:
             raw = base64.b64decode(self.csv_file) #vorbereitung binary
@@ -48,7 +78,7 @@ class MrpBom(models.Model):
             for row in str_list: #normiren auf zwei-spaltenliste
                 entry = []
                 entry.append(row[1])
-                entry.append(row[2])
+                entry.append(row[2].replace('\n',''))
                 list.append(entry)
                 if len(list[rowNum][0]) == 0:
                     errors += 1
@@ -117,13 +147,13 @@ class MrpBom(models.Model):
             message += "scancode: " + str(bom.product_tmpl_id.default_code) + " name: " + str(bom.product_tmpl_id.name) + "\n"
         raise ValidationError(str(message))
 
-    @api.constrains('product_id', 'product_tmpl_id', 'bom_line_ids', 'byproduct_ids', 'operation_ids')
+    @api.constrains('bom_line_ids')
     def _check_bom_duplicates(self):
         #alle kandidaten in boms aufnehmen die gleiche zeilenzahl haben und nicht die bom selbst sind
         boms = self.env['mrp.bom'].search([]).filtered(lambda b: len(b.bom_line_ids) == len(self.bom_line_ids) and b.product_tmpl_id.id != self.product_tmpl_id.id)
         # bei leere boms gleich hier raus sonst in rekusion einsteigen
-        if len(self.bom_line_ids) == 0:
-            raise ValidationError(str('leere Stücklisten machen so gar keinen Sinn!'))
+        #if len(self.bom_line_ids) == 0:  #kollidiert mit batch import
+        #    raise ValidationError(str('leere Stücklisten machen so gar keinen Sinn!'))
         if len(boms) == 0:
             return False
         return self.check_bom_duplicates_rek(boms, 0)
