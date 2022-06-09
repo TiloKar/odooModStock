@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-  <menuitem id="bbi_stock_location_open_menu_form" name="bbi Lagerorte" parent="stock.menu_stock_config_settings" sequence="1">
-      <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form"/>
-      <!--action="bbi_mod_stock.stock_bbi_location_open_form"-->
-  </menuitem>
-</odoo>
