@@ -125,14 +125,22 @@ class MrpBom(models.Model):
 
     #ausformulierung der Prüfbedingung für bom.lines, interne id und qty müssen gleich sein
     def bom_line_duplicates_condition(self, bom, line):
+        #für einen ganzen satz alte stücklisten existiert in mrp.bom_lines keine product_tmpl_id
+        # daher erst über product_id auflösen....
+        thisLinesProduct = line.product_id.product_tmpl_id
+        thisLinesQty = line.product_qty
         for bom_line in bom.bom_line_ids:
-            print("line-this: {} line-candidate: {}".format(line, bom_line))
-            #if self.bom_line_ids[line].product_qty == bom_line.product_qty and self.bom_line_ids[line].product_tmpl_id == bom_line.product_tmpl_id:
-            #    return True
+            candidatesLineProduct = bom_line.product_id.product_tmpl_id
+            candidatesLineQty = bom_line.product_qty
+            print("line-this: {} line-candidate: {}".format(thisLinesProduct, candidatesLineProduct))
+            if candidatesLineProduct == thisLinesProduct and candidatesLineQty == thisLinesQty:
+                return True
         return False
 
     #prüft rekursiv, ob die BOM schon strukturgleich existiert
     def check_bom_duplicates_rek(self, boms, line):
+        #für einen ganzen satz alte stücklisten existiert in mrp.bom_lines keine product_tmpl_id
+        # daher erst über product_id auflösen....
         rek_boms = boms.filtered(lambda bom: self.bom_line_duplicates_condition(bom, self.bom_line_ids[line]))
         if len(rek_boms) == 0:
             return False #abbruch, die kandidatenliste ist leer, obwohl noch nicht alle lines geprüft worden

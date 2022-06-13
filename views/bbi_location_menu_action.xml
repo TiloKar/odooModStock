@@ -8,4 +8,22 @@
   <menuitem id="bbi_stock_location_open_menu_form" name="bbi Lagerorte" parent="stock.menu_stock_config_settings" sequence="1" groups="stock.group_stock_manager">
       <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form" groups="stock.group_stock_manager"/>
   </menuitem>
+  <record id="stock_bbi_location_form_view" model="ir.ui.view">
+    <field name="name">bbi.stock.location.form</field>
+    <field name="model">bbi.stock.location</field>
+    <field name="arch" type="xml">
+        <form string="bbi Location">
+            <group>
+                <field name="name"/>
+                <p>
+                  <field name='myFile'/>
+                  <button name="parseLagerliste" type="object" string="Terminal Datenbank als Inventurbestand lesen" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="parseKommilager" type="object" string="Projektlager einlesen" class="oe_highlight"/>
+                </p>
+            </group>
+        </form>
+    </field>
+  </record>
 </odoo>
