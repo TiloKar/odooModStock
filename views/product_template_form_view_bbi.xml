@@ -8,7 +8,8 @@
       <xpath expr="//field[@name='detailed_type']" position="after">
         <field name='bbiStockLocation_id'/>
         <field name='webshop'/>
-        <field name='isSparePart'/>  
+        <field name='isSparePart'/>
+        <field name='qualityCheck'/>   
       </xpath>
     </field>
   </record>

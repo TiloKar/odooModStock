@@ -17,6 +17,13 @@ class ProductTemplate(models.Model):
         store=True,
         readonly=False,)
 
+    qualityCheck = fields.Boolean(
+        string = 'erw. Wareneingangskontrolle',
+        default=False,
+        help='Check this, if product have to be checked in detail while stock input',
+        store=True,
+        readonly=False,)
+
     bbiStockLocation_id = fields.Many2one(
         'bbi.stock.location',
         string="BBI Lagerort",

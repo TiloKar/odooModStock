@@ -22,5 +22,32 @@ class BbiStockLocation(models.Model):
 
         sheet = book.sheets()[0]
 
+        datasets = [] # wird ein array mit den anzuhängenden dictionaries
+        for i in range(sheet.nrows):
+            if i < 1:
+                continue
+            if isinstance(sheet.cell(i, 0).value, str): #fallunterscheidung für als zahl interpretierte scancodes
+                rowCode = str(sheet.cell(i, 0).value).replace('\n','')
+            else:
+                rowCode = str(int(sheet.cell(i, 0).value))
+
+            result = self.env['product.product'].search([('default_code', '=', rowCode)]) # product_template id.ermitteln
+            if len(result) == 0:
+                raise ValidationError('Scancode: {} in Zeile {} nicht gefunden'.format(rowCode, i+1))
+
+            if result[0].product_tmpl_id.type == 'product':
+                if isinstance(sheet.cell(i, 8).value, str):
+                    rowQty = 0
+                else:
+                    rowQty = int(sheet.cell(i, 8).value)
+                print('product_product: {} mit qty {} aufgenommen'.format(result[0],rowQty))
+                datasets.append({
+                    'product_id': result[0].id,
+                    'inventory_quantity': rowQty,
+                    'location_id': 8,
+                })
+
+        self.env['stock.quant'].create(datasets)
+
     def parseKommilager(self):
         raise ValidationError('noch bauen!')

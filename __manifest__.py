@@ -16,7 +16,8 @@
       wenn in bom-line gehakt und im MO kopf gehakt, per xpath in Qweb pdf angezeigt, Juni 22
      - Blendenmanagement mit virtuellen Produkten, Verriegelung gegen bereits erzeugungte,
       strukturgleiche BOMs,als allgemeine rekursive Methode auf deep compare von BOMS realisiert,
-      Hinweis auf Duplikat-Produkt in validation error, Juni 22
+      Hinweis auf Duplikat-Produkt in validation error, Juni 22, fixes im Juni
+     - todo Hinweise auf erweiterte Wareneingangskontrolle im internen Transfer von WH/Input
      - K-BOM import aus excel ergänzt, constraits auf bom_line ids eingekürzt, Juni 22
      - E-BOM auch für interne transfers verfügbar, Juni 22
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
