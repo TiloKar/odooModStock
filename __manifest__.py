@@ -17,9 +17,11 @@
      - Blendenmanagement mit virtuellen Produkten, Verriegelung gegen bereits erzeugungte,
       strukturgleiche BOMs,als allgemeine rekursive Methode auf deep compare von BOMS realisiert,
       Hinweis auf Duplikat-Produkt in validation error, Juni 22, fixes im Juni
-     - todo Hinweise auf erweiterte Wareneingangskontrolle im internen Transfer von WH/Input
      - K-BOM import aus excel ergänzt, constraits auf bom_line ids eingekürzt, Juni 22
      - E-BOM auch für interne transfers verfügbar, Juni 22
+     - Inventurbestand aus Excel-Zählung kann über Form ansicht der bbi lagerorte automatisch in Inventurpostion "to apply" verwandelt werden
+     - TODO handling von losnummern bereits beim zählen vorbereiten und auch automatisch parsen
+     - TODO Hinweise auf erweiterte Wareneingangskontrolle im internen Transfer von WH/Input klarer stylen
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
      - TODO Idee strukturstücklisten aus solid works parsen
      - TODO idee: auto-anlegen der produkte unter K-Referenz und name bei auswahl von autoCreateProducts

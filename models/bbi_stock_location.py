@@ -41,13 +41,20 @@ class BbiStockLocation(models.Model):
                 else:
                     rowQty = int(sheet.cell(i, 8).value)
                 print('product_product: {} mit qty {} aufgenommen'.format(result[0],rowQty))
+                #to do Los ID
                 datasets.append({
                     'product_id': result[0].id,
                     'inventory_quantity': rowQty,
                     'location_id': 8,
+                    'inventory_quantity_set' : True
                 })
-
-        self.env['stock.quant'].create(datasets)
+        for d in datasets:
+            hit = self.env['stock.quant'].search([('product_id', '=', d['product_id']),('location_id', '=', d['location_id'])])
+            print(str(len(hit)))
+            if len(hit) > 0:
+                hit[0].update(d)
+            else:
+                self.env['stock.quant'].create(d)
 
     def parseKommilager(self):
         raise ValidationError('noch bauen!')
