@@ -22,7 +22,7 @@
      - Inventurbestand aus Excel-Zählung kann über Form ansicht der bbi lagerorte automatisch in Inventurpostion "to apply" verwandelt werden
      - TODO handling von losnummern bereits beim zählen vorbereiten und auch automatisch parsen
      - offene Projektbedarfe aus terminal werden für das erste Projektblatt automatisch als MO übernommen
-     - TODO die MO noch bestätigen (eventuell gleich die Methoden identifizieren und nutzen...)
+     - TODO noch schleife über alle Blätter rum und die MO noch bestätigen (eventuell gleich die Methoden identifizieren und nutzen...)
      - TODO für bedarfe kopieren und weiterhin mit move_lines versehen bis zum abschließen
      - TODO Hinweise auf erweiterte Wareneingangskontrolle im internen Transfer von WH/Input klarer stylen
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)

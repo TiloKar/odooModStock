@@ -10,6 +10,12 @@ class ProductTemplate(models.Model):
         store=True,
         readonly=False,)
 
+    bbiDrawingNb = fields.Char(
+        string = 'bbi Zeichnungsnummer',
+        help='Enter Drawing nb. if stock code (Scancode) is a bbi nb. and product needs a drawing nb. reference',
+        store=True,
+        readonly=False,)
+
     isSparePart = fields.Boolean(
         string = 'Ersatzteil',
         default=False,

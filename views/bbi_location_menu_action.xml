@@ -21,6 +21,9 @@
                   <br/>
                   <br/>
                   <button name="parseKommilager" type="object" string="Projektlager einlesen" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen" class="oe_highlight"/>
                 </p>
             </group>
         </form>
