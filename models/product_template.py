@@ -37,6 +37,6 @@ class ProductTemplate(models.Model):
 
     locationName = fields.Char(
         related='bbiStockLocation_id.name',
-        string="BBI Lagerort",
+        string="bbi Lagerort",
         readonly=True,
         store=False,)

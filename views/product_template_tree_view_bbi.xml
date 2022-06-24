@@ -6,9 +6,14 @@
     <field name="inherit_id" ref="product.product_template_tree_view"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='default_code']" position="after">
+        <field name='bbiDrawingNb' optional="show"/>
         <field name='locationName' optional="show"/>
-        <field name='webshop' optional="show"/>
         <field name='isSparePart' optional="show"/>
+        <field name='qualityCheck' optional="show"/>
+        <field name='webshop' optional="show"/>
+      </xpath>
+      <xpath expr="//field[@name='default_code']" position="attributes">
+        <attribute name="string">bbi Scancode</attribute>
       </xpath>
     </field>
   </record>
