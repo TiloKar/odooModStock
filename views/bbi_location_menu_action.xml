@@ -15,8 +15,16 @@
         <form string="bbi Location">
             <group>
                 <field name="name"/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <p>Nur zur internen Verwendung, Tag X Scripte:</p>
                 <p>
-                  <field name='myFile'/>
+                  <field name='myFile' filename='myFile_file_name'/>
+                  <field name='myFile_file_name' invisible='1'/>
                   <button name="parseLagerliste" type="object" string="Terminal Datenbank als Inventurbestand lesen" class="oe_highlight"/>
                   <br/>
                   <br/>

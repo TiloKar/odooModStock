@@ -8,6 +8,12 @@
       <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='product_uom']" position="after">
         <field name="qualityCheck" attrs="{'invisible': [('qualityCheck', '!=', True)]}"/>
       </xpath>
+      <xpath expr="//field[@name='origin']" position="after">
+        <field name='external_origin'/>
+      </xpath>
+      <xpath expr="//field[@name='origin']" position="attributes">
+        <attribute name="string">interne Referenz</attribute>
+      </xpath>
     </field>
   </record>
 </odoo>

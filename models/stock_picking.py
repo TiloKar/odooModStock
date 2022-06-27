@@ -5,9 +5,15 @@ from odoo.exceptions import ValidationError
 class Picking(models.Model):
     _inherit = 'stock.picking'
 
-    csv_file = fields.Binary(string='CSV File')
+    #csv_file = fields.Binary(string='CSV File')
 
-    output = fields.Char(string='internal output')
+    #output = fields.Char(string='internal output')
+
+    external_origin = fields.Char(
+        string = 'externe LS-Nr.',
+        help='LS-Nr des Lieferanten',
+        store=True,
+        readonly=False,)
 
     #bereitet Liste aus Elo csv Stückliste vor
     def makeLinesFromEbom(self):
