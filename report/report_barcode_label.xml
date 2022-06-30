@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_barcode_label">
+  <t t-call="web.html_container">
+    <t t-foreach="docs" t-as="doc">
+      <div t-out="docs.default_code" style="padding:0" t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:60mm;height:25mm'}"/>
+      <div class="o_label_name" style="line-height: 130%;height:2.0em;background-color: transparent;">
+          <span t-out="doc.name"/>
+      </div>
+    </t>
+  </t>
+</template>
+</odoo>

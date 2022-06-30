@@ -42,6 +42,8 @@
     'views/product_template_tree_view_bbi.xml',
     'views/bbi_location_menu_action.xml',
     'report/report_mrp_order.xml',
+    'report/report_barcode_label.xml',
+    'report/report_action_label.xml',
     'views/stock_picking_form_bbi.xml',
   ],
 }
