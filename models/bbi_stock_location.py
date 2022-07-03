@@ -74,13 +74,14 @@ class BbiStockLocation(models.Model):
 
         # hier später eine schleife über alle sheets ab 1
 
-        datasetsBedarf = [] # wird ein array mit den anzuhängenden dictionaries
-        datasetsBestand = [] # wird ein array mit den anzuhängenden dictionaries
         scancodeSetsError =[]
+        created = []
         for k in range(book.nsheets):
             if k < 1:
                 continue
             sheet = book.sheets()[k]
+            datasetsBedarf = [] # wird ein array mit den anzuhängenden dictionaries
+            datasetsBestand = [] # wird ein array mit den anzuhängenden dictionaries
             for i in range(sheet.nrows):
                 if i < 1:
                     continue
@@ -91,7 +92,7 @@ class BbiStockLocation(models.Model):
 
                 result = self.env['product.product'].search([('default_code', '=', rowCode)]) # product_template id.ermitteln
                 if len(result) == 0:
-                    scancodeSetsError.append({'origin' : 'Scancode: {} in {} Zeile {} nicht gefunden'.format(rowCode, i+1, sheet.name),'scancode' : rowCode});
+                    scancodeSetsError.append({'origin' : 'Scancode: {} in {} Zeile {} nicht gefunden'.format(rowCode,sheet.name, i+1),'scancode' : rowCode});
                     #raise ValidationError('Scancode: {} in Zeile {} nicht gefunden'.format(rowCode, i+1))
                 else:
                     if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
@@ -118,55 +119,133 @@ class BbiStockLocation(models.Model):
                                 'product_uom_qty': bestand,
                                 'product_uom_id': result[0].uom_id.id,
                             })
-        if len(scancodeSetsError) == 0 :
+            if len(datasetsBedarf) > 0 :
                 #hilfsproduct für MO Bestand
-            newProduct = self.env['product.product'].create({
-                'name': "{} TagX Hilfsprodukt für Bestand aus Terminal".format(sheet.name),
-                'detailed_type': "product",
-                'type': "product",
-                'purchase_ok': False,
-                'active': False,
-            })
-
-            #Kopfdaten MO Bestand
-            newProduction = self.env['mrp.production'].create({
-                'origin': "{} TagX Terminal Bestände".format(sheet.name),
-                'product_id': newProduct.id,
-                'product_uom_id': newProduct.uom_id.id,
-                'product_qty' : 1,
-                'product_uom_qty' : 1,
-            })
-            #move to stock
-            self.env['stock.move'].create({
-                'name': newProduction.name,
-                'origin': newProduction.name,
-                'reference': newProduction.name,
-                'product_id': newProduct.id,
-                'production_id': newProduction.id,
-                'product_uom': newProduct.uom_id.id,
-                'product_uom_qty' : 1,
-                'location_id': 15,
-                'location_dest_id': 8,
-                'warehouse_id': 1,
-                'sequence' : 10,
-            })
-
-            #move from stock to production
-            for d in datasetsBedarf:
-                self.env['stock.move'].create({
-                    'name': newProduct,
-                    'origin': newProduct,
-                    'reference': newProduction.name,
-                    'product_id': d['product_id'],
-                    'raw_material_production_id': newProduction.id,
-                    'product_uom': d['product_uom_id'],
-                    'product_uom_qty' : d['product_uom_qty'],
-                    'location_id': 8,
-                    'location_dest_id': 15,
-                    'warehouse_id': 1,
-                    'sequence' : 1,
+                newProduct = self.env['product.product'].create({
+                    'name': "{} TagX Hilfsprodukt für Bedarf aus Terminal".format(sheet.name),
+                    'detailed_type': "product",
+                    'type': "product",
+                    'purchase_ok': False,
+                    'active': False,
                 })
-        else:
+
+                #Kopfdaten MO Bestand
+                newProduction = self.env['mrp.production'].create({
+                    'origin': "{} TagX Terminal Bedarfe".format(sheet.name),
+                    'product_id': newProduct.id,
+                    'product_uom_id': newProduct.uom_id.id,
+                    'product_qty' : 1,
+                    'qty_producing' : 1,
+                    'product_uom_qty' : 1,
+                })
+                #created.append(newProduction)
+                #move to stock
+                self.env['stock.move'].create({
+                    'name': newProduction.name,
+                    'origin': newProduction.name,
+                    'reference': newProduction.name,
+                    'product_id': newProduct.id,
+                    'production_id': newProduction.id,
+                    'product_uom': newProduct.uom_id.id,
+                    'product_uom_qty' : 1,
+                    'location_id': 15,
+                    'location_dest_id': 8,
+                    'warehouse_id': 1,
+                    'sequence' : 10,
+                })
+
+                #move from stock to production
+                for d in datasetsBedarf:
+                    self.env['stock.move'].create({
+                        'name': newProduct.name,
+                        'origin': newProduct.name,
+                        'reference': newProduction.name,
+                        'product_id': d['product_id'],
+                        'raw_material_production_id': newProduction.id,
+                        'product_uom': d['product_uom_id'],
+                        'product_uom_qty' : d['product_uom_qty'],
+                        'location_id': 8,
+                        'location_dest_id': 15,
+                        'warehouse_id': 1,
+                        'sequence' : 1,
+                    })
+
+                newProduction.action_confirm()
+
+            #ab hier MO für bestand
+            if len(datasetsBestand) > 0 :
+                #hilfsproduct für MO Bestand
+                newProduct = self.env['product.product'].create({
+                    'name': "{} TagX Hilfsprodukt für Bestand aus Terminal".format(sheet.name),
+                    'detailed_type': "product",
+                    'type': "product",
+                    'purchase_ok': False,
+                    'active': False,
+                })
+
+                #Kopfdaten MO Bestand
+                newProduction = self.env['mrp.production'].create({
+                    'origin': "{} TagX Terminal Bestände".format(sheet.name),
+                    'product_id': newProduct.id,
+                    'product_uom_id': newProduct.uom_id.id,
+                    'product_qty' : 1,
+                    'qty_producing' : 1,
+                    'product_uom_qty' : 1,
+                })
+                #created.append(newProduction)
+                #move to stock
+                self.env['stock.move'].create({
+                    'name': newProduction.name,
+                    'origin': newProduction.name,
+                    'reference': newProduction.name,
+                    'product_id': newProduct.id,
+                    'production_id': newProduction.id,
+                    'product_uom': newProduct.uom_id.id,
+                    'product_uom_qty' : 1,
+                    'location_id': 15,
+                    'location_dest_id': 8,
+                    'warehouse_id': 1,
+                    'sequence' : 10,
+                })
+
+                #move from stock to production
+                moves = []
+                for d in datasetsBestand:
+                    move = self.env['stock.move'].create({
+                        'name': newProduct.name,
+                        'origin': newProduct.name,
+                        'reference': newProduction.name,
+                        'product_id': d['product_id'],
+                        'raw_material_production_id': newProduction.id,
+                        'product_uom': d['product_uom_id'],
+                        'product_uom_qty' : d['product_uom_qty'],
+                        'location_id': 8,
+                        'location_dest_id': 15,
+                        'warehouse_id': 1,
+                        'sequence' : 1,
+                    })
+                    moves.append(move)
+
+                newProduction.action_confirm()
+
+                # jetzt noch move lines zum bestätigen vorbereiten
+
+                #move_lines from stock to production, erledigt menge eintragen
+                for d in moves:
+                    self.env['stock.move.line'].create({
+                        'move_id' : d.id,
+                        'product_id': d.product_id.id,
+                        'product_uom_id': d.product_uom.id,
+                        'qty_done' : d.product_uom_qty,
+                        'location_id' : 8,
+                        'location_dest_id' : 15,
+                        'state' : 'confirmed',
+                        'reference': d.reference,
+                    })
+
+                newProduction.button_mark_done()
+
+        if len(scancodeSetsError) > 0 :
             ausgabe = ''
             for d in scancodeSetsError:
                 ausgabe+= "{};{}\n".format(d['scancode'],d['origin'])
