@@ -341,11 +341,6 @@ class BbiStockLocation(models.Model):
 
     # comperator-funktion für REV Duplikatermittlung
     def compRevHandler(self,p,toFind):
-        #if p['id == itP.id: return False
-        #print("{}-{}".format(p['id'],itP['id']))
-        #if not p['default_code']: return False
-        #if not itP['default_code']: return False
-        #print ("vergleiche: {} mit {}".format(p.default_code.lower(),itP.default_code.lower()))
         if p['default_code'].lower() == toFind['default_code'].lower(): return True
         return False
 
@@ -367,22 +362,25 @@ class BbiStockLocation(models.Model):
         for pIt in allProductsIter:
             if len(allProductsCandidates) > 0:
                 #toFind = {'id': pIt['id'] , 'default_code': pIt['default_code'],'bbiDrawingNb': pIt['bbiDrawingNb'],'name': pIt['name'],'date': pIt['date'],'user': pIt['user']}
-                toFind = list(filter(lambda p: p['id'] == pIt['id'],allProductsCandidates))
-                if len(toFind) == 0: continue #bereits entferntes Duplikat, übergehen
-                allProductsCandidates.remove(toFind[0])
-                if len(allProductsCandidates) > 0:
+                hits = list(filter(lambda p: p['id'] == pIt['id'],allProductsCandidates))
+                if len(hits) == 0: continue #bereits entferntes Duplikat, übergehen
+                toFind = {'id': hits[0]['id'] , 'default_code': hits[0]['default_code'],'bbiDrawingNb': hits[0]['bbiDrawingNb'],'name': hits[0]['name'],'date': hits[0]['date'],'user': hits[0]['user']}
+                allProductsCandidates.remove(toFind) #sonst erstmal sich selbst rausnehmen
+                if pIt['default_code'] == 'virtual': continue # virtuelle Produkte übergehen
+                if len(allProductsCandidates) > 0: # falls noch immer kandidaten da sind
                     hits = list(filter(lambda p: self.compRevHandler(p,pIt),allProductsCandidates))
-                    if len(hits) == 0: continue #keine Duplikate
-                    duples.append(toFind[0])
+                    if len(hits) == 0: continue #keine Duplikate gefunden
+                    duples.append(toFind)
                     for p in hits:
                         print("duplikat mit id: {} zu id {}".format(str(p['id']),str(pIt['id'])))
                         #toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
-                        toRemove = list(filter(lambda pc: pc['id'] == p['id'],allProductsCandidates))
-                        duples.append(toRemove[0])
-                        allProductsCandidates.remove(toRemove[0])
+                        toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
+                        duples.append(toRemove)
+                        allProductsCandidates.remove(toRemove)
+                        
 
         print ("duplikate: {}".format(len(duples)))
-        print (duples)
+        #print (duples)
         if len(duples) > 0:
             ausgabe = ''
             ausgabe+= "{};{};{};{};{};{}\n".format('odoo id','interner odoo name','barcode','bbi zeichnungsnummer','im odoo erstellt am','im odoo erstellt von')
