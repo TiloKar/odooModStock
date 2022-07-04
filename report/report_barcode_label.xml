@@ -11,7 +11,7 @@
         </tr>
         <tr>
           <td>
-            <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:17mm;width:17mm;'}"/>
+            <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm;'}"/>
           </td>
           <td>
             <div t-field="doc.default_code" style="font-size: 3mm';"/>

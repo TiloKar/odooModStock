@@ -74,7 +74,7 @@ class BbiStockLocation(models.Model):
 
         # hier später eine schleife über alle sheets ab 1
 
-        scancodeSetsError =[]
+        scancodeSetsGenerated=[]
         created = []
         for k in range(book.nsheets):
             if k < 1:
@@ -92,35 +92,43 @@ class BbiStockLocation(models.Model):
 
                 result = self.env['product.product'].search([('default_code', '=', rowCode)]) # product_template id.ermitteln
                 if len(result) == 0:
-                    scancodeSetsError.append({'origin' : 'Scancode: {} in {} Zeile {} nicht gefunden'.format(rowCode,sheet.name, i+1),'scancode' : rowCode});
+                    #nicht gefundene Produkte erzeugen und später als csv zurückgeben
+                    result = self.env['product.product'].create({
+                        'name': str(sheet.cell(i, 1).value),
+                        'default_code' : rowCode,
+                        'bbiDrawingNb' : str(sheet.cell(i, 2).value),
+                        'detailed_type': "product",
+                        'type': "product",
+                    })
+                    scancodeSetsGenerated.append({'origin' : 'Scancode: {} in {} Zeile {} nicht gefunden'.format(rowCode,sheet.name, i+1),'scancode' : rowCode});
                     #raise ValidationError('Scancode: {} in Zeile {} nicht gefunden'.format(rowCode, i+1))
-                else:
-                    if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
-                        if isinstance(sheet.cell(i, 6).value, str):
-                            bestand = 0
-                        else:
-                            bestand = int(sheet.cell(i, 6).value)
 
-                        if isinstance(sheet.cell(i, 7).value, str):
-                            bedarf = 0
-                        else:
-                            bedarf = int(sheet.cell(i, 7).value)
-                        #to do Los ID
-                        if (bedarf - bestand) > 0:
-                            datasetsBedarf.append({
-                                'product_id': result[0].id,
-                                'product_uom_id': result[0].uom_id.id,
-                                'product_uom_qty': bedarf - bestand,
-                            })
-                            print('offene Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
-                        if bestand > 0:
-                            datasetsBestand.append({
-                                'product_id': result[0].id,
-                                'product_uom_qty': bestand,
-                                'product_uom_id': result[0].uom_id.id,
-                            })
-                            print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
-            if (len(datasetsBedarf) > 0) and (len(scancodeSetsError) == 0) :
+                if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
+                    if isinstance(sheet.cell(i, 6).value, str):
+                        bestand = 0
+                    else:
+                        bestand = int(sheet.cell(i, 6).value)
+
+                    if isinstance(sheet.cell(i, 7).value, str):
+                        bedarf = 0
+                    else:
+                        bedarf = int(sheet.cell(i, 7).value)
+                    #to do Los ID
+                    if (bedarf - bestand) > 0:
+                        datasetsBedarf.append({
+                            'product_id': result[0].id,
+                            'product_uom_id': result[0].uom_id.id,
+                            'product_uom_qty': bedarf - bestand,
+                        })
+                        print('offene Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+                    if bestand > 0:
+                        datasetsBestand.append({
+                            'product_id': result[0].id,
+                            'product_uom_qty': bestand,
+                            'product_uom_id': result[0].uom_id.id,
+                        })
+                        print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+            if len(datasetsBedarf) > 0:
                 #hilfsproduct für MO Bestand
                 newProduct = self.env['product.product'].create({
                     'name': "{} TagX Hilfsprodukt für Bedarf aus Terminal".format(sheet.name),
@@ -174,7 +182,7 @@ class BbiStockLocation(models.Model):
                 newProduction.action_confirm()
 
             #ab hier MO für bestand
-            if (len(datasetsBestand) > 0) and (len(scancodeSetsError) == 0) :
+            if len(datasetsBestand) > 0 :
                 #hilfsproduct für MO Bestand
                 newProduct = self.env['product.product'].create({
                     'name': "{} TagX Hilfsprodukt für Bestand aus Terminal".format(sheet.name),
@@ -248,13 +256,13 @@ class BbiStockLocation(models.Model):
                 #das versucht zu reservieren, und schmeißt unter unständen fehler wenn schon irgendwo anders reserviert
                 # zum entfernen von reservierungen werden kollidierende stock_move_lines vn andren productions entfernt
 
-        if len(scancodeSetsError) > 0 :
+        if len(scancodeSetsGenerated) > 0 :
             ausgabe = ''
-            for d in scancodeSetsError:
+            for d in scancodeSetsGenerated:
                 ausgabe+= "{};{}\n".format(d['scancode'],d['origin'])
             raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
             self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
-            self.myFile_file_name = 'errors.csv' # Name und Format des Downloads
+            self.myFile_file_name = 'products_generated.csv' # Name und Format des Downloads
 
 
     #einmalige übernahme des wareneingangs buchs an TagX
@@ -329,3 +337,57 @@ class BbiStockLocation(models.Model):
             #    hit[0].update(d)
             #else:
             #    self.env['stock.quant'].create(d)
+
+
+    # comperator-funktion für REV Duplikatermittlung
+    def compRevHandler(self,p,toFind):
+        #if p['id == itP.id: return False
+        #print("{}-{}".format(p['id'],itP['id']))
+        #if not p['default_code']: return False
+        #if not itP['default_code']: return False
+        #print ("vergleiche: {} mit {}".format(p.default_code.lower(),itP.default_code.lower()))
+        if p['default_code'].lower() == toFind['default_code'].lower(): return True
+        return False
+
+    def handleRevDuplicates(self):
+
+        allProducts = self.env['product.product'].search([]).filtered(lambda p: p.default_code)
+
+        allProductsIter = []
+        allProductsCandidates = []
+        duples = []
+
+        for p in allProducts:
+            allProductsIter.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': str(p.create_date),'user': p.create_uid.partner_id.name})
+            allProductsCandidates.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': str(p.create_date),'user': p.create_uid.partner_id.name})
+
+        print("alle teile mit barcode min {}".format(len(allProductsCandidates)))
+        #print ("alle produkte: {}".format(len(allProducts)))
+
+        for pIt in allProductsIter:
+            if len(allProductsCandidates) > 0:
+                #toFind = {'id': pIt['id'] , 'default_code': pIt['default_code'],'bbiDrawingNb': pIt['bbiDrawingNb'],'name': pIt['name'],'date': pIt['date'],'user': pIt['user']}
+                toFind = list(filter(lambda p: p['id'] == pIt['id'],allProductsCandidates))
+                if len(toFind) == 0: continue #bereits entferntes Duplikat, übergehen
+                allProductsCandidates.remove(toFind[0])
+                if len(allProductsCandidates) > 0:
+                    hits = list(filter(lambda p: self.compRevHandler(p,pIt),allProductsCandidates))
+                    if len(hits) == 0: continue #keine Duplikate
+                    duples.append(toFind[0])
+                    for p in hits:
+                        print("duplikat mit id: {} zu id {}".format(str(p['id']),str(pIt['id'])))
+                        #toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
+                        toRemove = list(filter(lambda pc: pc['id'] == p['id'],allProductsCandidates))
+                        duples.append(toRemove[0])
+                        allProductsCandidates.remove(toRemove[0])
+
+        print ("duplikate: {}".format(len(duples)))
+        print (duples)
+        if len(duples) > 0:
+            ausgabe = ''
+            ausgabe+= "{};{};{};{};{};{}\n".format('odoo id','interner odoo name','barcode','bbi zeichnungsnummer','im odoo erstellt am','im odoo erstellt von')
+            for d in duples:
+                ausgabe+= "{};{};{};{};{};{}\n".format(d['id'],d['name'],d['default_code'],d['bbiDrawingNb'],d['date'],d['user'])
+            raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
+            self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
+            self.myFile_file_name = 'rev_duplicates.csv' # Name und Format des Downloads

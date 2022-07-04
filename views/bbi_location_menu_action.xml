@@ -25,13 +25,20 @@
                 <p>
                   <field name='myFile' filename='myFile_file_name'/>
                   <field name='myFile_file_name' invisible='1'/>
-                  <button name="parseLagerliste" type="object" string="Terminal Datenbank als Inventurbestand lesen" class="oe_highlight"/>
                   <br/>
                   <br/>
-                  <button name="parseKommilager" type="object" string="Projektlager einlesen" class="oe_highlight"/>
+                  <button name="handleRevDuplicates" type="object" string="REV Duplikate behandeln" class="oe_highlight"/>
                   <br/>
                   <br/>
-                  <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen" class="oe_highlight"/>
+                  <button name="parseKommilager" type="object" string="Projektlager einlesen (MO)" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen (PO)" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="parseLagerliste" type="object" string="Terminal Datenbank als Inventurbestand lesen (quants)" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                 </p>
             </group>
         </form>
