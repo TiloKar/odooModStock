@@ -105,7 +105,6 @@ class BbiStockLocation(models.Model):
                             bedarf = 0
                         else:
                             bedarf = int(sheet.cell(i, 7).value)
-                        print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
                         #to do Los ID
                         if (bedarf - bestand) > 0:
                             datasetsBedarf.append({
@@ -113,13 +112,15 @@ class BbiStockLocation(models.Model):
                                 'product_uom_id': result[0].uom_id.id,
                                 'product_uom_qty': bedarf - bestand,
                             })
-                        elif bestand > 0:
+                            print('offene Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+                        if bestand > 0:
                             datasetsBestand.append({
                                 'product_id': result[0].id,
                                 'product_uom_qty': bestand,
                                 'product_uom_id': result[0].uom_id.id,
                             })
-            if len(datasetsBedarf) > 0 :
+                            print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+            if (len(datasetsBedarf) > 0) and (len(scancodeSetsError) == 0) :
                 #hilfsproduct für MO Bestand
                 newProduct = self.env['product.product'].create({
                     'name': "{} TagX Hilfsprodukt für Bedarf aus Terminal".format(sheet.name),
@@ -173,7 +174,7 @@ class BbiStockLocation(models.Model):
                 newProduction.action_confirm()
 
             #ab hier MO für bestand
-            if len(datasetsBestand) > 0 :
+            if (len(datasetsBestand) > 0) and (len(scancodeSetsError) == 0) :
                 #hilfsproduct für MO Bestand
                 newProduct = self.env['product.product'].create({
                     'name': "{} TagX Hilfsprodukt für Bestand aus Terminal".format(sheet.name),
@@ -244,6 +245,8 @@ class BbiStockLocation(models.Model):
                     })
 
                 newProduction.button_mark_done()
+                #das versucht zu reservieren, und schmeißt unter unständen fehler wenn schon irgendwo anders reserviert
+                # zum entfernen von reservierungen werden kollidierende stock_move_lines vn andren productions entfernt
 
         if len(scancodeSetsError) > 0 :
             ausgabe = ''
@@ -255,8 +258,10 @@ class BbiStockLocation(models.Model):
 
 
     #einmalige übernahme des wareneingangs buchs an TagX
-    #nur offene etsellungen werden übernommen und auch nicht bestätigt,
+    #nur offene bestellungen werden übernommen und auch nicht bestätigt,
     #Die Produktpositionen sollen beim Wareneingang manuell nachgetragen werden
+    #stock_move lines mit status "partly availabe auf die gleiche product-positions-id sind das problem"
+    #assigned gab auch probleme??
     def parseWareneingangsbuch(self):
         try:
             raw = base64.decodestring(self.myFile) #vorbereitung binary
