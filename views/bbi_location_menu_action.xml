@@ -27,6 +27,9 @@
                   <field name='myFile_file_name' invisible='1'/>
                   <br/>
                   <br/>
+                  <button name="parseKaufmannProducts" type="object" string="Kaufmann Produkte holen" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                   <button name="handleRevDuplicates" type="object" string="REV Duplikate behandeln" class="oe_highlight"/>
                   <br/>
                   <br/>
