@@ -35,10 +35,10 @@ class BbiStockLocation(models.Model):
             else:
                 rowCode = str(int(sheet.cell(i, 1).value))
 
-            if sheet.cell(i, 70).value == '':
+            if sheet.cell(i, 227).value == '':
                 price = 0
             else:
-                price = float(sheet.cell(i, 70).value)
+                price = float(sheet.cell(i, 227).value)
 
             name = str(sheet.cell(i, 5).value).replace('\n','')
             name.replace(';',' | ')
@@ -82,7 +82,7 @@ class BbiStockLocation(models.Model):
                     'description': p['description'],
                     'standard_price': p['standard_price']
                 })
-                print("verarbeite kaufmann zeile: {} für create aufgenommen".format(i))
+                print("kaufmann zeile: {} für create aufgenommen".format(i))
             else:
                 toUpdate.append({
                     'id': result[0]['id'],
@@ -92,17 +92,26 @@ class BbiStockLocation(models.Model):
                     'id' : result[0]['id'],
                     'default_code' : result[0]['default_code'],
                 })
-                print("verarbeite kaufmann zeile: {} für update aufgenommen".format(i))
+                print("kaufmann zeile: {} für update aufgenommen".format(i))
 
         ausgabe = ''
-        print("zu erzeugende produkte: {}".format(len(toCreate)))
+        n = len(toCreate)
+        print("zu erzeugende produkte: {}".format(n))
         ausgabe+= "{};{};{};{};{};{}\n".format('name','default_code','bbiDrawingNb','detailed_type','type','description')
+        i=0
         for c in toCreate:
+            i+=1
+            print("creating {} of {}".format(i,n))
             self.env['product.product'].create(c)
             ausgabe+= "{};{};{};{};{};{}\n".format(c['name'],c['default_code'],c['bbiDrawingNb'],c['detailed_type'],c['type'],c['description'])
-        print("zum update markierte produkte: {}".format(len(toUpdate)))
-        ausgabe+= "updates:\n{};{}\n".format('id','default_code')
+
+        n = len(toUpdate)
+        print("zum update markierte produkte: {}".format(n))
+        ausgabe+= "updates:\n{};{}\n".format('id','price')
+        i=0
         for c in toUpdate:
+            i+=1
+            print("updating {} of {}".format(i,n))
             self.env['product.product'].search([('id','=',c['id'])]).update({'standard_price':c['standard_price']})
             ausgabe+= "{};{}\n".format(c['id'],c['standard_price'])
         raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
