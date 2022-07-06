@@ -6,63 +6,60 @@ class BbiStockLocation(models.Model):
     _inherit = 'bbi.stock.location'
 
     # comperator-funktion für REV Duplikatermittlung
-    def compRevHandler(self,p,toFind):
+    def compDuplicateHandler(self,p,toFind):
         if p['default_code'].lower() == toFind['default_code'].lower(): return True
         return False
 
-    def handleRevDuplicates(self):
+    def handleBarcodeDuplicates(self):
+        self.checkBarcodeDuplicatesInternal(True)
 
-        allProducts = self.env['product.product'].search([]).filtered(lambda p: p.default_code)
+    def checkBarcodeDuplicates(self):
+        self.checkBarcodeDuplicatesInternal(False)
+
+    def checkBarcodeDuplicatesInternal(self,handleDuplicates):
+
+        allProductsWithBarcode = self.env['product.product'].search([]).filtered(lambda p: p.default_code)
+        print("alle teile mit barcode: {}".format(len(allProductsWithBarcode)))
+        allProductsNoBarcode = self.env['product.product'].search([]).filtered(lambda p: not p.default_code)
+        print("alle teile ohne barcode: {}".format(len(allProductsNoBarcode)))
+        allProductsNoName = self.env['product.product'].search([]).filtered(lambda p: not p.name)
+        print("alle teile ohne name: {}".format(len(allProductsNoName)))
 
         allProductsIter = []
         allProductsCandidates = []
         duples = []
         toDeleteCandidates = []
 
-        for p in allProducts:
-            #allProductsIter.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': str(p.create_date),'user': p.create_uid.partner_id.name})
+        #eigen suchliste und kandidatenliste erzeugen
+        for p in allProductsWithBarcode:
             if p.create_date != False:
                 allProductsIter.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': str(p.create_date),'user': p.create_uid.partner_id.name})
                 allProductsCandidates.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': str(p.create_date),'user': p.create_uid.partner_id.name})
             else:
                 allProductsIter.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': 'na','user': p.create_uid.partner_id.name})
                 allProductsCandidates.append({'id': p.id , 'default_code': p.default_code,'bbiDrawingNb': p.bbiDrawingNb,'name': p.name,'date': 'na','user': p.create_uid.partner_id.name})
-        print("alle teile mit barcode min {}".format(len(allProductsCandidates)))
-        #print ("alle produkte: {}".format(len(allProducts)))
 
         for pIt in allProductsIter:
-            if len(allProductsCandidates) > 0:
-                #toFind = {'id': pIt['id'] , 'default_code': pIt['default_code'],'bbiDrawingNb': pIt['bbiDrawingNb'],'name': pIt['name'],'date': pIt['date'],'user': pIt['user']}
-                hits = list(filter(lambda p: p['id'] == pIt['id'],allProductsCandidates))
-                if len(hits) == 0: continue #bereits entferntes Duplikat, übergehen
-                toFind = {'id': hits[0]['id'] , 'default_code': hits[0]['default_code'],'bbiDrawingNb': hits[0]['bbiDrawingNb'],'name': hits[0]['name'],'date': hits[0]['date'],'user': hits[0]['user']}
-                allProductsCandidates.remove(toFind) #sonst erstmal sich selbst rausnehmen
-                if pIt['default_code'] == 'virtual': continue # virtuelle Produkte übergehen
-                if len(allProductsCandidates) > 0: # falls noch immer kandidaten da sind
-                    hits = list(filter(lambda p: self.compRevHandler(p,pIt),allProductsCandidates))
-                    if len(hits) == 0: continue #keine Duplikate gefunden
-                    duples.append(toFind)
-                    for p in hits:
-                        print("duplikat mit id: {} zu id {}".format(str(p['id']),str(pIt['id'])))
-                        #toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
-                        toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
-                        duples.append(toRemove)
-                        allProductsCandidates.remove(toRemove)
-                        #delCandidates = []
-                        #delCandidates.append(toFind)
-                        #delCandidates.append(toRemove)
-
-                        #revFixSrc = list(filter(lambda p: "-REV" in p['default_code'],delCandidates))
-                        #revFixDest = list(filter(lambda p: "-rev" in p['default_code'],delCandidates))
-                        #if (len(revFixSrc)) > 0 and (len(revFixDest) > 0):
-                        #    print("deleting: {}".format(revFixSrc))
-                        #    dest = self.env['product.product'].search([('id', '=', revFixDest[0]['id'])])
-                        #    src = self.env['product.product'].search([('id', '=', revFixSrc[0]['id'])])
-                        #    dest.update({'name':src.name,'description':src.description,'sale_ok':src.sale_ok,'purchase_ok':src.purchase_ok,'default_code':src.default_code})
-                        #    src.unlink()
-                            #toDeleteCandidates.append({'id': toDelete.id , 'default_code': toDelete.default_code,'bbiDrawingNb': toDelete.bbiDrawingNb,'name': toDelete.name,'date': str(toDelete.create_date),'user': toDelete.create_uid.partner_id.name})
-
-                        #continue # mehrere duplikate erst mal nicht behandeln
+            if len(allProductsCandidates) == 0: break  #wenn noch kandidatenliste leer ist
+            hits = list(filter(lambda p: p['id'] == pIt['id'],allProductsCandidates))
+            if len(hits) == 0: continue #bereits entferntes Duplikat, übergehen bzw. ohne fund weiter
+            toFind = {'id': pIt['id'] , 'default_code': pIt['default_code'],'bbiDrawingNb': pIt['bbiDrawingNb'],'name': pIt['name'],'date': pIt['date'],'user': pIt['user']}
+            allProductsCandidates.remove(toFind) #sonst erstmal sich selbst rausnehmen
+            #workaround um virtuals eindeutig zu kennzeichnen
+            if pIt['default_code'] == 'virtual':
+                print("updating virtual product barcode: {}".format(pIt['id']))
+                self.env['product.product'].search([('id','=',pIt['id'])]).update({'default_code': str(pIt['default_code']) + str(pIt['id'])})
+                continue # virtuelle Produkte übergehen
+            if len(allProductsCandidates) > 0: # falls noch immer kandidaten da sind
+                hits = list(filter(lambda p: self.compDuplicateHandler(p,pIt),allProductsCandidates))
+                if len(hits) == 0: continue #keine Duplikate gefunden
+                duples.append(toFind) #sonst ursprung des duplikats in ausgabe datei nehmen
+                toDeleteCandidates.append({'id_src' : pIt['id'],'id_dupl' : hits[0]['id']})
+                for p in hits:
+                    print("duplikat mit id: {} zu id {}".format(str(p['id']),str(pIt['id'])))
+                    toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
+                    duples.append(toRemove) #duplikat aufnehmen
+                    allProductsCandidates.remove(toRemove) # kandidaten entferene
 
         print ("duplikate: {}".format(len(duples)))
         #duplikate datei
@@ -75,12 +72,29 @@ class BbiStockLocation(models.Model):
             self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
             self.myFile_file_name = 'rev_duplicates.csv' # Name und Format des Downloads
 
-        #Löschkandidaten datei
-        #if len(toDeleteCandidates) > 0:
-        #    ausgabe = ''
-        #    ausgabe+= "{};{};{};{};{};{}\n".format('odoo id','interner odoo name','barcode','bbi zeichnungsnummer','im odoo erstellt am','im odoo erstellt von')
-        #    for d in toDeleteCandidates:
-        #        ausgabe+= "{};{};{};{};{};{}\n".format(d['id'],d['name'],d['default_code'],d['bbiDrawingNb'],d['date'],d['user'])
-        #    raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
-        #    self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
-        #    self.myFile_file_name = 'rev_to_delete.csv' # Name und Format des Downloads
+        if handleDuplicates:
+            print("Duplikate behandeln...")
+            #to do: schleife über toDeleteCandidates
+            # idee try catch und die mit error sammeln und als liste ausgeben
+
+            #revFixSrc = list(filter(lambda p: "-REV" in p['default_code'],delCandidates))
+            #revFixDest = list(filter(lambda p: "-rev" in p['default_code'],delCandidates))
+            #if (len(revFixSrc)) > 0 and (len(revFixDest) > 0):
+            #    print("deleting: {}".format(revFixSrc))
+            #    dest = self.env['product.product'].search([('id', '=', revFixDest[0]['id'])])
+            #    src = self.env['product.product'].search([('id', '=', revFixSrc[0]['id'])])
+            #    dest.update({'name':src.name,'description':src.description,'sale_ok':src.sale_ok,'purchase_ok':src.purchase_ok,'default_code':src.default_code})
+            #    src.unlink()
+                #toDeleteCandidates.append({'id': toDelete.id , 'default_code': toDelete.default_code,'bbiDrawingNb': toDelete.bbiDrawingNb,'name': toDelete.name,'date': str(toDelete.create_date),'user': toDelete.create_uid.partner_id.name})
+
+            #continue # mehrere duplikate erst mal nicht behandeln
+
+            #Löschkandidaten datei
+            #if len(toDeleteCandidates) > 0:
+            #    ausgabe = ''
+            #    ausgabe+= "{};{};{};{};{};{}\n".format('odoo id','interner odoo name','barcode','bbi zeichnungsnummer','im odoo erstellt am','im odoo erstellt von')
+            #    for d in toDeleteCandidates:
+            #        ausgabe+= "{};{};{};{};{};{}\n".format(d['id'],d['name'],d['default_code'],d['bbiDrawingNb'],d['date'],d['user'])
+            #    raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
+            #    self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
+            #    self.myFile_file_name = 'rev_to_delete.csv' # Name und Format des Downloads
