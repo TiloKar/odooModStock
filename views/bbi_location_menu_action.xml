@@ -36,6 +36,9 @@
                   <button name="handleBarcodeDuplicates" type="object" string="Barcode Duplikate behandeln" class="oe_highlight"/>
                   <br/>
                   <br/>
+                  <button name="handleMissingProductId" type="object" string="Fehlende product_id behandeln" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                   <button name="parseKommilager" type="object" string="Projektlager einlesen (MO)" class="oe_highlight"/>
                   <br/>
                   <br/>

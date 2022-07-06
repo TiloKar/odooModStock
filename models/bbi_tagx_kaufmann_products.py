@@ -86,7 +86,7 @@ class BbiStockLocation(models.Model):
             else:
                 toUpdate.append({
                     'id': result[0]['id'],
-                    'standard_price': p['standard_price']
+                    'standard_price': p['standard_price'],
                 })
                 candidatesOdoo.remove({ #damit für alle folgenden iterationen die suchkandidaten kleiner werden
                     'id' : result[0]['id'],
@@ -112,7 +112,7 @@ class BbiStockLocation(models.Model):
         for c in toUpdate:
             i+=1
             print("updating {} of {}".format(i,n))
-            self.env['product.product'].search([('id','=',c['id'])]).update({'standard_price':c['standard_price']})
+            self.env['product.product'].search([('id','=',c['id'])]).update({'standard_price':c['standard_price'],'purchase_ok':True})
             ausgabe+= "{};{}\n".format(c['id'],c['standard_price'])
         raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
         self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden

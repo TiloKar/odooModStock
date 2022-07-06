@@ -54,7 +54,7 @@ class BbiStockLocation(models.Model):
                 hits = list(filter(lambda p: self.compDuplicateHandler(p,pIt),allProductsCandidates))
                 if len(hits) == 0: continue #keine Duplikate gefunden
                 duples.append(toFind) #sonst ursprung des duplikats in ausgabe datei nehmen
-                toDeleteCandidates.append({'id_src' : pIt['id'],'id_dupl' : hits[0]['id']})
+                toDeleteCandidates.append({'id_1' : pIt['id'],'id_2' : hits[0]['id']})
                 for p in hits:
                     print("duplikat mit id: {} zu id {}".format(str(p['id']),str(pIt['id'])))
                     toRemove = {'id': p['id'] , 'default_code': p['default_code'],'bbiDrawingNb': p['bbiDrawingNb'],'name': p['name'],'date': p['date'],'user': p['user']}
@@ -63,17 +63,42 @@ class BbiStockLocation(models.Model):
 
         print ("duplikate: {}".format(len(duples)))
         #duplikate datei
-        if len(duples) > 0:
+        if (len(duples) > 0) and not handleDuplicates:
             ausgabe = ''
             ausgabe+= "{};{};{};{};{};{}\n".format('odoo id','interner odoo name','barcode','bbi zeichnungsnummer','im odoo erstellt am','im odoo erstellt von')
             for d in duples:
-                ausgabe+= "{};{};{};{};{};{}\n".format(d['id'],d['name'],d['default_code'],d['bbiDrawingNb'],d['date'],d['user'])
+                ausgabe+= "{};{};{};{};{};{}\n".format(d['id'],str(d['name']).replace(';','|'),str(d['default_code']).replace(';','|'),d['bbiDrawingNb'],d['date'],d['user'])
+            ausgabe+= 'ohne namen\n'
+            for d in allProductsNoName:
+                ausgabe+= "{};{};{}\n".format(d.id,str(d.name).replace(';','|'),str(d.default_code).replace(';','|'))
+            ausgabe+= 'ohne barcode\n'
+            for d in allProductsNoBarcode:
+                ausgabe+= "{};{};{}\n".format(d.id,str(d.name).replace(';','|'),str(d.default_code).replace(';','|'))
+
             raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
             self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
             self.myFile_file_name = 'rev_duplicates.csv' # Name und Format des Downloads
 
+        handleErorrs =[]
         if handleDuplicates:
-            print("Duplikate behandeln...")
+            print("Duplikate fehlerhaftes kaufmann tos script behandeln...")
+            #toDeleteCandidates.append({'id_src' : pIt['id'],'id_dupl' : hits[0]['id']})
+            for d in toDeleteCandidates:
+                id1 = self.env['product.product'].search([('id','=',d['id_1'])])
+                id2 = self.env['product.product'].search([('id','=',d['id_2'])])
+                if (not id1.create_date) or (not id2.create_date):
+                    if id1.create_date:
+                        src = id1
+                        dpl = id2
+                    else:
+                        src = id2
+                        dpl = id1
+                        print("id src: {} id dupl: {} date:{}".format(src.id,dpl.id,dpl.create_date))
+                    src.update({'name':dpl.name,'description':str(src.description) + str(dpl.description),'sale_ok':dpl.sale_ok,'purchase_ok':dpl.purchase_ok,'default_code':dpl.default_code})
+                    print("versuche zu löschen: {}".format(dpl.id))
+                    dpl.unlink()
+
+
             #to do: schleife über toDeleteCandidates
             # idee try catch und die mit error sammeln und als liste ausgeben
 

@@ -10,3 +10,4 @@ from . import bbi_tagx_duplicates
 from . import bbi_tagx_kommilager
 from . import bbi_tagx_quants
 from . import bbi_tagx_wareneingangsbuch
+from . import bbi_tagx_product_id
