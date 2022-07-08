@@ -39,6 +39,9 @@
                   <button name="handleMissingProductId" type="object" string="Fehlende product_id behandeln" class="oe_highlight"/>
                   <br/>
                   <br/>
+                  <!--button name="fixingType" type="object" string="product type bug fixen" class="oe_highlight"/>
+                  <br/>
+                  <br/-->
                   <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
                   <br/>
                   <br/>
