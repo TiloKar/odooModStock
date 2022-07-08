@@ -39,7 +39,10 @@
                   <button name="handleMissingProductId" type="object" string="Fehlende product_id behandeln" class="oe_highlight"/>
                   <br/>
                   <br/>
-                  <button name="parseKommilager" type="object" string="Projektlager einlesen (MO)" class="oe_highlight"/>
+                  <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="generateKommilager" type="object" string="Projektlager erzeugen (MO)" class="oe_highlight"/>
                   <br/>
                   <br/>
                   <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen (PO)" class="oe_highlight"/>
