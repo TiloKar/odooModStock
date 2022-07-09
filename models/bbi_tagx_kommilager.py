@@ -37,7 +37,7 @@ class BbiStockLocation(models.Model):
             if k < 1:   #erstes blatt nicht anfassen
                 continue
             sheet = book.sheets()[k]
-            if sheet.name in ('1900','1905','1906','1783','ohne Projekt','Muster','Schwund'):
+            if sheet.name in ('1229','1230','1232','1233','1234','1235','1900','1905','1906','1783','ohne Projekt','Muster','Schwund'):
                 print("skipping {}".format(sheet.name))
                 continue
 
