@@ -33,6 +33,18 @@ class BbiStockLocation(models.Model):
         notFound = []
         toCreate = []
         rotePunkteOdoo = []
+
+        #behandlungsversuch unreserve bug
+        #reserved = self.env['stock.move.line'].search([('product_qty','>',0)])
+        #for r in reserved:
+        #    print("unreserve: {}".format(r))
+        #    r.sudo().update({
+        #        'product_uom_qty' : 0,
+        #        'product_qty' : 0,
+        #    })
+        #GELÖST: durch löschen aller stock_move_lines mit qty_done == 0
+
+
         for k in range(book.nsheets):
             if k < 1:   #erstes blatt nicht anfassen
                 continue
@@ -239,6 +251,9 @@ class BbiStockLocation(models.Model):
                 newProduction.button_mark_done()
                 #das versucht zu reservieren, und schmeißt unter unständen fehler wenn schon irgendwo anders reserviert
                 # zum entfernen von reservierungen werden kollidierende stock_move_lines vn andren productions entfernt
+                #GELÖST: durch löschen aller stock_move_lines mit qty_done == 0
+
+
 
             #ende der scripte zur erzeugung der MO
         #ende for über alle sheets
