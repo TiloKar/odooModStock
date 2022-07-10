@@ -42,6 +42,9 @@
                   <!--button name="fixingType" type="object" string="product type bug fixen" class="oe_highlight"/>
                   <br/>
                   <br/-->
+                  <button name="fixingUom" type="object" string="UOM bug fixen" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                   <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
                   <br/>
                   <br/>

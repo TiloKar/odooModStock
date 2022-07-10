@@ -9,7 +9,7 @@ class StockMove(models.Model):
         help='If checked, material documentation has to be documentated while manufacturing',
         store=True,
         readonly=True,)
-        
+
     qualityCheck = fields.Boolean(
         related='product_id.product_tmpl_id.qualityCheck',
         string="Deep Check",
