@@ -140,8 +140,7 @@ class BbiStockLocation(models.Model):
                         vals['verbrauchOdoo'] = res1905[0]['verbrauchOdoo']
 
                     datasetsBestand.append(vals)
-                    # debug 
-                    break
+                
                     print('{} in Lagerliste product: {} mit bestand {} aufgenommen'.format(i+1,result[0].default_code,bestand))
 
                 else: #roter rotePunkt
