@@ -1,4 +1,4 @@
-
+#klemmert generell alle raises aus die beim aufräumen der produktstammdaten im weg sind
 from collections import defaultdict
 from datetime import timedelta
 from itertools import groupby
@@ -23,9 +23,20 @@ class StockQuant(models.Model):
                 #raise ValidationError(_('You cannot take products from or deliver products to a location of type "view" (%s).') % quant.location_id.name)
 
 
-class StockMoveBbi(models.Model):
+class StockMove(models.Model):
     _inherit = 'stock.move'
     _order = 'sequence, id'
+
+
+
+    def _set_product_qty(self):
+        """ The meaning of product_qty field changed lately and is now a functional field computing the quantity
+        in the default product UoM. This code has been added to raise an error if a write is made given a value
+        for `product_qty`, where the same write should set the `product_uom_qty` field instead, in order to
+        detect errors. """
+        print("bypassing raise in _set_product_qty")
+        #raise UserError(_('The requested operation cannot be processed because of a programming error setting the `product_qty` field instead of the `product_uom_qty`.'))
+
 
     #temporäres ausserkraftsetzen der raise
     @api.constrains('product_uom')
@@ -108,8 +119,37 @@ class StockMoveBbi(models.Model):
             receipt_moves_to_reassign._action_assign()
         return res
 
-class ProductTemplateBbi(models.Model):
+class ProductTemplate(models.Model):
     _inherit = 'product.template'
+
+
+    @api.onchange('type')
+    def _onchange_type(self):
+        #wenn woanders diser super call kommt gibt es auch probleme
+
+        # hier super call verändert, damit nicht die alte methode nochmal aufgerufen wird
+        #res = super(models.Model,self).write(vals)
+        #res = super(ProductTemplate, self)._onchange_type() or {}
+        res = {}
+        if self.type == 'consu' and self.tracking != 'none':
+            self.tracking = 'none'
+
+        # Return a warning when trying to change the product type
+        if self.ids and self.product_variant_ids.ids and self.env['stock.move.line'].sudo().search_count([
+            ('product_id', 'in', self.product_variant_ids.ids), ('state', '!=', 'cancel')
+        ]):
+            #res['warning'] = {
+            #    'title': _('Warning!'),
+            #    'message': _(
+            #        'This product has been used in at least one inventory movement. '
+            #        'It is not advised to change the Product Type since it can lead to inconsistencies. '
+            #        'A better solution could be to archive the product and create a new one instead.'
+            #    )
+            #}
+            print("bypassing raise in product_template._onchange_type()")
+        return res
+
+
 
     # ergänzungen um bei unit fehler automatisch die abhängigkeiten zu behandeln
     def write(self, vals):
@@ -142,7 +182,8 @@ class ProductTemplateBbi(models.Model):
                 print("bypassing raise in product_template.write(vals)")
                 #raise UserError(_("You cannot change the unit of measure as there are already stock moves for this product. If you want to change the unit of measure, you should rather archive this product and create a new one.\n{}".format(ausgabe)))
         if 'type' in vals and vals['type'] != 'product' and sum(self.mapped('nbr_reordering_rules')) != 0:
-            raise UserError(_('You still have some active reordering rules on this product. Please archive or delete them first.'))
+            print("bypassing raise in product_template.write(vals)")
+            #raise UserError(_('You still have some active reordering rules on this product. Please archive or delete them first.'))
         if any('type' in vals and vals['type'] != prod_tmpl.type for prod_tmpl in self):
             existing_move_lines = self.env['stock.move.line'].search([
                 ('product_id', 'in', self.mapped('product_variant_ids').ids),
@@ -155,21 +196,17 @@ class ProductTemplateBbi(models.Model):
                     line.update({'product_qty':0,'product_uom_qty':0})
 
 
-
-                raise UserError(_("You can not change the type of a product that is currently reserved on a stock move. If you need to change the type, you should first unreserve the stock move."))
+                print("bypassing raise in product_template.write(vals)")
+                #raise UserError(_("You can not change the type of a product that is currently reserved on a stock move. If you need to change the type, you should first unreserve the stock move."))
         if 'type' in vals and vals['type'] != 'product' and any(p.type == 'product' and not float_is_zero(p.qty_available, precision_rounding=p.uom_id.rounding) for p in self):
-            raise UserError(_("Available quantity should be set to zero before changing type"))
+            print("bypassing raise in product_template.write(vals)")
+            #raise UserError(_("Available quantity should be set to zero before changing type"))
         # hier super call verändert, damit nicht die alte methode nochmal aufgerufen wird
         return super(models.Model,self).write(vals)
-
-
-
 
 class UoM(models.Model):
     _inherit = 'uom.uom'
     _order = "factor DESC, id"
-
-
 
     #außerkraft setzen der prüfung bis units repariert, via raise if failure
     def _compute_quantity(self, qty, to_unit, round=True, rounding_method='UP', raise_if_failure=False):
@@ -201,43 +238,3 @@ class UoM(models.Model):
             amount = tools.float_round(amount, precision_rounding=to_unit.rounding, rounding_method=rounding_method)
 
         return amount
-
-
-class BbiStockLocation(models.Model):
-    _inherit = 'bbi.stock.location'
-
-    #repariert uom fehler nach rangieren der einheit im produkt, pauschal für alle referenzierenden entitäten
-    def fixingUom(self):
-        print("repairing uom in purchase_order_lines")
-        lines= self.env['purchase.order.line'].search([])
-        for line in lines:
-            print("checking purchase order line {}".format(line.id))
-            if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
-                print("try to fix uom bug in order.line {} for product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
-                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
-
-        print("repairing uom in ale_order_line")
-        lines= self.env['sale.order.line'].search([])
-        for line in lines:
-            print("checking sale_order_line {}".format(line.id))
-            if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
-                print("try to fix uom bug in sale.order.line {} product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
-                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
-
-        print("repairing uom in stock_moves")
-        lines= self.env['stock.move'].search([])
-        for line in lines:
-            print("checking move {}".format(line.id))
-            if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
-                print("try to fix uom bug in stock_move {} for product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
-                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
-
-        print("repairing uom in stock_move_line")
-        lines= self.env['stock.move.line'].search([])
-        for line in lines:
-            print("checking stock_move_line {}".format(line.id))
-            if line.product_id.product_tmpl_id.uom_id.id != line.product_uom_id.id:
-                print("try to fix uom bug in stock.move.line {} product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
-                line.update({'product_uom_id' : line.product_id.product_tmpl_id.uom_id.id })
-
-        #stock quants?

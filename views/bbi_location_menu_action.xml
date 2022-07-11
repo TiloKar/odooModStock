@@ -42,7 +42,7 @@
                   <!--button name="fixingType" type="object" string="product type bug fixen" class="oe_highlight"/>
                   <br/>
                   <br/-->
-                  <button name="fixingUom" type="object" string="UOM bug fixen" class="oe_highlight"/>
+                  <button name="fixingUOMbbi" type="object" string="UOM bug fixen" class="oe_highlight"/>
                   <br/>
                   <br/>
                   <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
@@ -54,7 +54,10 @@
                   <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen (PO)" class="oe_highlight"/>
                   <br/>
                   <br/>
-                  <button name="parseLagerliste" type="object" string="Terminal Datenbank als Inventurbestand lesen (quants)" class="oe_highlight"/>
+                  <button name="parseLagerListe" type="object" string="Terminal Datenbank als Inventurbestand testen (quants)" class="oe_highlight"/>
+                  <br/>
+                  <br/>
+                  <button name="generateLagerListe" type="object" string="Terminal Datenbank als Inventurbestand übertragen (quants)" class="oe_highlight"/>
                   <br/>
                   <br/>
                 </p>
