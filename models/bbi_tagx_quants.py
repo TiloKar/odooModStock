@@ -1,3 +1,9 @@
+
+#legacy
+
+
+
+
 from odoo import api, fields, models
 import base64, xlrd
 from odoo.exceptions import ValidationError

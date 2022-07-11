@@ -74,45 +74,45 @@ class BbiStockLocation(models.Model):
                     })
                     print('kein treffer bom -- {}  -- code: {} -- name: {}'.format(sheet.name,rowCode,str(sheet.cell(i, 1).value)))
                 else:
-                    if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
-                        if isinstance(sheet.cell(i, 6).value, str):
-                            bestand = 0
-                        else:
-                            bestand = int(sheet.cell(i, 6).value)
+                    #if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
+                    if isinstance(sheet.cell(i, 6).value, str):
+                        bestand = 0
+                    else:
+                        bestand = int(sheet.cell(i, 6).value)
 
-                        if isinstance(sheet.cell(i, 7).value, str):
-                            bedarf = 0
-                        else:
-                            bedarf = int(sheet.cell(i, 7).value)
-                        #to do Los ID
-                        if (bedarf - bestand) > 0:
-                            datasetsBedarf.append({
-                                'product_id': result[0].id,
-                                'product_uom_id': result[0].uom_id.id,
-                                'product_uom_qty': bedarf - bestand,
-                            })
-                            print('offene Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
-                            toCreate.append({
-                                'projekt': sheet.name,
-                                'type': 'Bedarf',
-                                'count': bedarf - bestand,
-                                'default_code' : rowCode,
-                            })
-                        if bestand > 0:
-                            datasetsBestand.append({
-                                'product_id': result[0].id,
-                                'product_uom_qty': bestand,
-                                'product_uom_id': result[0].uom_id.id,
-                                'default_code' : rowCode,
-                            })
-                            print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
-                            toCreate.append({
-                                'projekt': sheet.name,
-                                'type': 'Bestand',
-                                'count': bestand,
-                                'default_code' : rowCode,
-                            })
-                    else: #roter rotePunkt
+                    if isinstance(sheet.cell(i, 7).value, str):
+                        bedarf = 0
+                    else:
+                        bedarf = int(sheet.cell(i, 7).value)
+                    #to do Los ID
+                    if (bedarf - bestand) > 0:
+                        datasetsBedarf.append({
+                            'product_id': result[0].id,
+                            'product_uom_id': result[0].uom_id.id,
+                            'product_uom_qty': bedarf - bestand,
+                        })
+                        print('offene Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+                        toCreate.append({
+                            'projekt': sheet.name,
+                            'type': 'Bedarf',
+                            'count': bedarf - bestand,
+                            'default_code' : rowCode,
+                        })
+                    if bestand > 0:
+                        datasetsBestand.append({
+                            'product_id': result[0].id,
+                            'product_uom_qty': bestand,
+                            'product_uom_id': result[0].uom_id.id,
+                            'default_code' : rowCode,
+                        })
+                        print('abgeschlossen Projekt bom -- {}  -- product_product: {} mit bestand {} und bedarf {} aufgenommen'.format(sheet.name,result[0],bestand,bedarf))
+                        toCreate.append({
+                            'projekt': sheet.name,
+                            'type': 'Bestand',
+                            'count': bestand,
+                            'default_code' : rowCode,
+                        })
+                    if (result[0].product_tmpl_id.type != 'product') or ( result[0].product_tmpl_id.detailed_type != 'product') : # roter punkt
                         rotePunkteOdoo.append({
                             'name': str(sheet.cell(i, 1).value),
                             'default_code' : rowCode,
@@ -284,7 +284,7 @@ class BbiStockLocation(models.Model):
         #    'sheetName' : sheet.name
         #})
         if len(rotePunkteOdoo) > 0 :
-            ausgabe += '!!! nicht übernommen wegen Verbrauchsartikel im odoo:\n'
+            ausgabe += '!!! davon übernommen als Verbrauchsartikel:\n'
             for d in rotePunkteOdoo:
                 ausgabe+= "{};{};{};{}\n".format(d['sheetName'],'na','na',d['default_code'])
 
