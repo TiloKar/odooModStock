@@ -1,11 +1,31 @@
-from datetime import timedelta
 
-from odoo import api, fields, tools, models, _
-from odoo.exceptions import UserError, ValidationError
+from collections import defaultdict
+from datetime import timedelta
+from itertools import groupby
+
+from operator import itemgetter
+
+from odoo import _, api, tools, Command, fields, models
+from odoo.exceptions import UserError
+from odoo.osv import expression
+from odoo.tools.float_utils import float_compare, float_is_zero, float_round
+from odoo.tools.misc import clean_context, OrderedSet
+
+class StockQuant(models.Model):
+    _inherit = 'stock.quant'
+
+    #temporäres ausserkraftsetzen der raise
+    @api.constrains('location_id')
+    def check_location_id(self):
+        for quant in self:
+            if quant.location_id.usage == 'view':
+                print("bypassing raise in check_location_id")
+                #raise ValidationError(_('You cannot take products from or deliver products to a location of type "view" (%s).') % quant.location_id.name)
 
 
 class StockMoveBbi(models.Model):
     _inherit = 'stock.move'
+    _order = 'sequence, id'
 
     #temporäres ausserkraftsetzen der raise
     @api.constrains('product_uom')
@@ -115,6 +135,7 @@ class ProductTemplateBbi(models.Model):
                         #        print("try to fix uom bug in stock.move {} for {} in picking {} in state {} origin {} reference {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.picking_id.name,line.state,line.origin,line.reference))
                         #    else:
                         #        print("try to fix uom bug in stock.move {} for {} with no picking id in state {} origin {} reference {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.state,line.origin,line.reference))
+                    print("updating product move {} for product {} with uom {}".format(line.id,line.product_id.default_code,new_uom))
                     line.update({'product_uom' : new_uom })
 
                 #ende inherit
@@ -146,6 +167,8 @@ class ProductTemplateBbi(models.Model):
 
 class UoM(models.Model):
     _inherit = 'uom.uom'
+    _order = "factor DESC, id"
+
 
 
     #außerkraft setzen der prüfung bis units repariert, via raise if failure
@@ -183,33 +206,38 @@ class UoM(models.Model):
 class BbiStockLocation(models.Model):
     _inherit = 'bbi.stock.location'
 
-    #repariert uom fehler nach rangieren der einheit im produkt
+    #repariert uom fehler nach rangieren der einheit im produkt, pauschal für alle referenzierenden entitäten
     def fixingUom(self):
-        #print("repairing uom in purchase_order_lines")
+        print("repairing uom in purchase_order_lines")
         lines= self.env['purchase.order.line'].search([])
         for line in lines:
-            #print("checking order line {}".format(line.id))
+            print("checking purchase order line {}".format(line.id))
             if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
-                print("try to fix uom bug in order.line {} for {}".format(line.id,line.product_id.product_tmpl_id.default_code))
+                print("try to fix uom bug in order.line {} for product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
                 line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
 
+        print("repairing uom in ale_order_line")
+        lines= self.env['sale.order.line'].search([])
+        for line in lines:
+            print("checking sale_order_line {}".format(line.id))
+            if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
+                print("try to fix uom bug in sale.order.line {} product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
+                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
+
+        print("repairing uom in stock_moves")
         lines= self.env['stock.move'].search([])
         for line in lines:
-            #print("checking order line {}".format(line.id))
+            print("checking move {}".format(line.id))
             if line.product_id.product_tmpl_id.uom_id.id != line.product_uom.id:
-                if line.state == 'done':
-                    if line.picking_id:
-                        print("try to fix uom bug in stock.move {} for {} in picking {} in state {} origin {} reference {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.picking_id.name,line.state,line.origin,line.reference))
-                    else:
-                        print("try to fix uom bug in stock.move {} for {} with no picking id in state {} origin {} reference {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.state,line.origin,line.reference))
-                #line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
+                print("try to fix uom bug in stock_move {} for product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
+                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
 
-
-        return
-
+        print("repairing uom in stock_move_line")
         lines= self.env['stock.move.line'].search([])
         for line in lines:
-            #print("checking order line {}".format(line.id))
+            print("checking stock_move_line {}".format(line.id))
             if line.product_id.product_tmpl_id.uom_id.id != line.product_uom_id.id:
-                print("try to fix uom bug in stock.move.line {} for {}".format(line.id,line.product_id.product_tmpl_id.default_code))
-                line.update({'product_uom' : line.product_id.product_tmpl_id.uom_id.id })
+                print("try to fix uom bug in stock.move.line {} product {} with uom {}".format(line.id,line.product_id.product_tmpl_id.default_code,line.product_id.product_tmpl_id.uom_id.name))
+                line.update({'product_uom_id' : line.product_id.product_tmpl_id.uom_id.id })
+
+        #stock quants?

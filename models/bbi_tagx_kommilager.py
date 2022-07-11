@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 class BbiStockLocation(models.Model):
     _inherit = 'bbi.stock.location'
 
-    #einmalige übernahme der Kommilager aus der parseLagerliste
+    #einmalige übernahme der Kommilager aus der Lagerliste
     # für jedes komilager eine geschlossen MO für Bestände
     # und eine offene MO für noch nicht gedeckte bedarfe
     def parseKommilager(self):
