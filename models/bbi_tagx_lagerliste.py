@@ -140,7 +140,7 @@ class BbiStockLocation(models.Model):
                         vals['verbrauchOdoo'] = res1905[0]['verbrauchOdoo']
 
                     datasetsBestand.append(vals)
-                
+
                     print('{} in Lagerliste product: {} mit bestand {} aufgenommen'.format(i+1,result[0].default_code,bestand))
 
                 else: #roter rotePunkt
@@ -153,12 +153,15 @@ class BbiStockLocation(models.Model):
         #ende for über alle zeilen im blatt lagerliste
 
         #ab hier MO für bestand
+        i=0
         if (len(datasetsBestand) > 0) and (generate == True) :
-            print("generating quant {}".format(sheet.name))
+
             for d in datasetsBestand:
+                i+=1
+                print("generating quant {}".format(i))
                 dif = 0
                 toSet = d['product_uom_qty']
-                if d['verbrauch1905']:
+                if 'verbrauch1905' in d:
                     dif = d['verbrauch1905'] - d['verbrauchOdoo']
                 if dif > 0:
                     toSet = dif + d['product_uom_qty']
@@ -194,12 +197,12 @@ class BbiStockLocation(models.Model):
         if len(datasetsBestand) > 0 :
             for d in datasetsBestand:
                 dif = 0
-                if d['verbrauch1905']:
+                if 'verbrauch1905' in d:
                     dif = d['verbrauch1905'] - d['verbrauchOdoo']
                 if dif > 0:
-                    ausgabe+= "{};{};{};{};{}\n".format(dif + d['product_uom_qty'],d['default_code'],d['name'],d['verbrauch1905'],d['verbrauchOdoo'])
+                    ausgabe+= "{};{};{};{};{}\n".format(dif + d['product_uom_qty'],d['default_code'],d['name'].replace(';','|'),d['verbrauch1905'],d['verbrauchOdoo'])
                 else:
-                    ausgabe+= "{};{};{}\n".format(d['product_uom_qty'],d['default_code'],d['name'])
+                    ausgabe+= "{};{};{}\n".format(d['product_uom_qty'],d['default_code'],d['name'].replace(';','|'))
         #notFound.append({
         #    'name': str(sheet.cell(i, 1).value),
         #    'default_code' : rowCode,
@@ -208,7 +211,7 @@ class BbiStockLocation(models.Model):
         if len(notFound) > 0 :
             ausgabe += '!!! NOT FOUND:\n'
             for d in notFound:
-                ausgabe+= "{};{};{}\n".format('na',d['default_code'],d['name'])
+                ausgabe+= "{};{};{}\n".format('na',d['default_code'],d['name'].replace(';','|'))
         #rotePunkteOdoo.append({
         #    'name': str(sheet.cell(i, 1).value),
         #    'default_code' : rowCode,
@@ -217,7 +220,7 @@ class BbiStockLocation(models.Model):
         if len(rotePunkteOdoo) > 0 :
             ausgabe += '!!! nicht übernommen wegen Verbrauchsartikel im odoo:\n'
             for d in rotePunkteOdoo:
-                ausgabe+= "{};{};{}\n".format('na',d['default_code'],d['name'])
+                ausgabe+= "{};{};{}\n".format('na',d['default_code'],d['name'].replace(';','|'))
 
         raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
         self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
