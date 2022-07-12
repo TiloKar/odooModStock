@@ -6,6 +6,7 @@ from datetime import date
 class BbiStockLocation(models.Model):
     _inherit = 'bbi.stock.location'
 
+    #repariert falsch übernommene mO locations und die alten PO
     def fixMoLocation(self):
 
         productionsToFix= self.env['mrp.production'].search([]).filtered(lambda p: p.picking_type_id.id == 6)
@@ -34,24 +35,21 @@ class BbiStockLocation(models.Model):
                 line.update({'location_id':8,'location_dest_id':15})
             if k>100:break #debug ,damit kein thread timeout
         #alle po vor 6.7. write date mit doppelung der partner_ref als liste
+
         mydate= date(2022, 7, 6)
         altePO = self.env['purchase.order'].search([('write_date','<',mydate)])
-        neuePO = self.env['purchase.order'].search([('write_date','>=',mydate)])
+        ausnahmen = ('P00033','P00196','P00196','P00196','P00221','A-00473','A-00488','A-00456','A-00538','A-00551','A-00615',
+            'A-00611','A-00584','A-00593','A-00616','A-00635','A-00633','A-00638','P00026','A-00651','P00039','P00041',
+            'P00028','P00042','P00036','P00070','P00070','P00046','P00078','P00077','P00087','P00088','P00185','P00073',
+            'P00082','P00090','P00068','P00085','P00091','P00066','P00081','P00061','P00062','P00060','P00222','P00201','P00204','P00202')
+        altePO = self.env['purchase.order'].search([('write_date','<',mydate)]).filtered(lambda p: p.name not in ausnahmen)
         print(len(altePO))
-        print(len(neuePO))
+        i=0
+        for n in altePO:
+            i+=1
+            print("{} delete".format(i))
+            n.write({'state': 'cancel', 'mail_reminder_confirmed': False})
+            n.unlink()
 
-
-        ausgabe= "odoo;extern\n"
-        for n in neuePO:
-            treffer = altePO.filtered(lambda p: False if not p.partner_ref or not n.partner_ref else p.partner_ref.strip().lower() == n.partner_ref.strip().lower())
-
-            #print(len(treffer))
-            if len(treffer) > 0:
-                for t in treffer:
-                    ausgabe+= "{};{}\n".format(t.name,t.partner_ref)
-
-        raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
-        self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
-        self.myFile_file_name = 'duplikate PO.csv' # Name und Format des Downloads
 
         #alle po vor 6.7. write date mit doppelung der partner_ref als liste
