@@ -10,13 +10,13 @@ class BbiStockLocation(models.Model):
     def getPartToCount(self):
 
         partList = []
-        productionsToCheck= self.env['mrp.production'].search([]).filtered(lambda p: p.state not in('draft','cancel','done'))
+        productionsToCheck= self.env['mrp.production'].search([]).filtered(lambda p: p.state not in('draft','cancel','done') and "tagx" not in p.product_id.name.lower())
         k=0
         n=len(productionsToCheck)
         for p in productionsToCheck:
             k+=1
             print("{} of {} checking production {}".format(k,n,p.name))
-            moves = self.env['stock.move'].search([]).filtered(lambda m: m.raw_material_production_id.id == p.id)
+            moves = self.env['stock.move'].search([]).filtered(lambda m: m.raw_material_production_id.id == p.id and m.product_id.type == 'product')
             i=0
             for m in moves:
                 i+=1
@@ -29,7 +29,7 @@ class BbiStockLocation(models.Model):
                 if toAppend:
                     partList.append({'product_id' : m.product_id.id,'name' : m.product_id.name,'default_code' : m.product_id.default_code })
 
-        ausgabe = 'code;name\nto create:\n'
+        ausgabe = 'code;name\n'
 
         if len(partList) > 0 :
             for d in partList:
