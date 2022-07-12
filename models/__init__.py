@@ -12,3 +12,4 @@ from . import bbi_tagx_wareneingangsbuch
 from . import bbi_tagx_lagerliste
 from . import bbi_tagx_product_id
 from . import uom_tagx
+from . import bbi_fix_MO_location

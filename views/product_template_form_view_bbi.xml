@@ -32,6 +32,11 @@
       </xpath>
       <xpath expr="//field[@name='detailed_type']" position="after">
         <xpath expr="//field[@name='default_code']" position="move"/>
+        <button name="generateScancode"
+          string="auto fill" type="object"
+          attrs="{'invisible': [('default_code', '!=', False)]}"
+          help="vergibt einen automatisch generierten Scancode"
+          class="oe_link oe_read_only pt-0"/>
       </xpath>
     </field>
   </record>

@@ -19,7 +19,6 @@ class BbiStockLocation(models.Model):
         if m.state != 'done': return False #muss abgeschlossen sein
         return True
 
-
     def compQuantsRef(self,p,rowCode):
         if not p.default_code: return False
         if rowCode.lower() == str(p.default_code).lower(): return True

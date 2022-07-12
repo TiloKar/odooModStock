@@ -141,6 +141,7 @@ class MrpBom(models.Model):
     def check_bom_duplicates_rek(self, boms, line):
         #für einen ganzen satz alte stücklisten existiert in mrp.bom_lines keine product_tmpl_id
         # daher erst über product_id auflösen....
+        if len(self.bom_line_ids) == 0: return False
         rek_boms = boms.filtered(lambda bom: self.bom_line_duplicates_condition(bom, self.bom_line_ids[line]))
         if len(rek_boms) == 0:
             return False #abbruch, die kandidatenliste ist leer, obwohl noch nicht alle lines geprüft worden

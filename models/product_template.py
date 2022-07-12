@@ -41,3 +41,7 @@ class ProductTemplate(models.Model):
         string="bbi Lagerort",
         readonly=True,
         store=False,)
+
+    def generateScancode(self):
+        if not self.default_code:
+            return super(models.Model,self).write({'default_code' : str(self.id)})

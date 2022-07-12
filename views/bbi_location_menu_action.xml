@@ -60,6 +60,9 @@
                   <button name="generateLagerListe" type="object" string="Terminal Datenbank als Inventurbestand übertragen (quants)" class="oe_highlight"/>
                   <br/>
                   <br/>
+                  <button name="fixMoLocation" type="object" string="alte MO reparieren" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                 </p>
             </group>
         </form>
