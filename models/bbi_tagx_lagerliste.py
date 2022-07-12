@@ -13,12 +13,6 @@ class BbiStockLocation(models.Model):
     def generateLagerListe(self):
         self.parseLagerListeInternal(True)
 
-    def compQuantsMO(self,m,p):
-        if p.id != m.product_id.id: return False #id muss gleich sein
-        if m.location_dest_id.id != 15: return False #muss in production aufgehen
-        if m.state != 'done': return False #muss abgeschlossen sein
-        return True
-
     def compQuantsRef(self,p,rowCode):
         if not p.default_code: return False
         if rowCode.lower() == str(p.default_code).lower(): return True
@@ -36,69 +30,7 @@ class BbiStockLocation(models.Model):
 
         notFound = []
         rotePunkteOdoo = []
-        datasetsBestand1905 = [] # wird ein array mit den anzuhängenden dictionaries
-
-        for k in range(book.nsheets):
-            sheet = book.sheets()[k]
-            if sheet.name == '1905': break
-
-        for i in range(sheet.nrows):
-            if i < 1:
-                continue
-            if isinstance(sheet.cell(i, 0).value, str): #fallunterscheidung für als zahl interpretierte scancodes
-                rowCode = str(sheet.cell(i, 0).value).replace('\n','')
-            else:
-                rowCode = str(int(sheet.cell(i, 0).value))
-
-            result = self.env['product.product'].search([]).filtered(lambda p: self.compQuantsRef(p,rowCode)) # product_template id.ermitteln
-            if len(result) == 0:
-                #nicht gefundene Produkte erzeugen und später als csv zurückgeben
-                notFound.append({
-                    'name': str(sheet.cell(i, 1).value),
-                    'default_code' : rowCode,
-                })
-                print('{} in 1905 nicht gefunden -- code: {}'.format(i+1,rowCode))
-            else:
-                if (result[0].product_tmpl_id.type == 'product') and ( result[0].product_tmpl_id.detailed_type == 'product') : # nur zählbare erfassen
-                    if isinstance(sheet.cell(i, 6).value, str):
-                        verbrauch = 0
-                    else:
-                        verbrauch = float(sheet.cell(i, 6).value)
-
-                    allLines = self.env['stock.move.line'].search([]).filtered(lambda m: self.compQuantsMO(m,result[0]))
-                    summeOdoo = sum(allLines.mapped('qty_done'))
-
-                    datasetsBestand1905.append({
-                        'product_id': result[0].id,
-                        'name': result[0].name,
-                        'verbrauch1905': verbrauch,
-                        'verbrauchOdoo': summeOdoo,
-                        'product_uom_id': result[0].uom_id.id,
-                        'default_code' : rowCode,
-                    })
-                    print('{} in 1905 , product: {} mit bestand1905: {} und bestandOdoo: {} aufgenommen'.format(i+1,rowCode,verbrauch,summeOdoo))
-                    #if summeOdoo > 0: break # debug
-                else: #roter rotePunkt
-                    rotePunkteOdoo.append({
-                        'name': str(sheet.cell(i, 1).value),
-                        'default_code' : rowCode,
-                    })
-                    print('{} in 1905 Verbrauchsartikel -- code: {} -- name: {}'.format(i+1,rowCode,str(sheet.cell(i, 1).value)))
-
-
-        # debug abbruch
-        #ausgabe = 'id;name;code;1905;odoo\n'
-        #if len(datasetsBestand1905) > 0 :
-        #    for d in datasetsBestand1905:
-        #        ausgabe+= "{};{};{};{};{}\n".format(d['product_id'],d['name'].replace(';','|'),d['default_code'],d['verbrauch1905'],d['verbrauchOdoo'])
-
-        #raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
-        #self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
-        #self.myFile_file_name = 'products_checked_or_generated_for quants.csv' # Name und Format des Downloads
-        #return
-
-        #ende for 1905
-
+        #stumpfe übernahme ohne 1905 betrachtung
         datasetsBestand = [] # wird ein array mit den anzuhängenden dictionaries
         sheet = book.sheets()[0]
 
@@ -130,13 +62,6 @@ class BbiStockLocation(models.Model):
                         'product_uom_qty': bestand,
                         'product_uom_id': result[0].uom_id.id,
                         'default_code' : rowCode}
-
-
-                    #schauene ob es zusätzliche menge in 1105 gibt, dann differenz in richtung 1905 dazu packen
-                    res1905 = list(filter(lambda d: d['product_id'] == result[0].id,datasetsBestand1905))
-                    if (len(res1905) > 0):
-                        vals['verbrauch1905'] = res1905[0]['verbrauch1905']
-                        vals['verbrauchOdoo'] = res1905[0]['verbrauchOdoo']
 
                     datasetsBestand.append(vals)
 
@@ -183,7 +108,7 @@ class BbiStockLocation(models.Model):
 
             #newProduction.button_mark_done()
 
-        ausgabe = 'Anzahl;code;name;Anzahl 1905;Anzahl Odoo MO;\nto create:\n'
+        ausgabe = 'Anzahl;code;name\nto create:\n'
         #    datasetsBestand.append({
         #        'product_id': result[0].id,
         #        'name': result[0].name,
@@ -195,13 +120,7 @@ class BbiStockLocation(models.Model):
         #    })
         if len(datasetsBestand) > 0 :
             for d in datasetsBestand:
-                dif = 0
-                if 'verbrauch1905' in d:
-                    dif = d['verbrauch1905'] - d['verbrauchOdoo']
-                if dif > 0:
-                    ausgabe+= "{};{};{};{};{}\n".format(dif + d['product_uom_qty'],d['default_code'],d['name'].replace(';','|'),d['verbrauch1905'],d['verbrauchOdoo'])
-                else:
-                    ausgabe+= "{};{};{}\n".format(d['product_uom_qty'],d['default_code'],d['name'].replace(';','|'))
+                ausgabe+= "{};{};{}\n".format(d['product_uom_qty'],d['default_code'],d['name'].replace(';','|'))
         #notFound.append({
         #    'name': str(sheet.cell(i, 1).value),
         #    'default_code' : rowCode,

@@ -63,6 +63,9 @@
                   <button name="fixMoLocation" type="object" string="alte MO reparieren" class="oe_highlight"/>
                   <br/>
                   <br/>
+                  <button name="getPartToCount" type="object" string="Kandidaten für Zählung holen" class="oe_highlight"/>
+                  <br/>
+                  <br/>
                 </p>
             </group>
         </form>

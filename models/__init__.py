@@ -13,3 +13,4 @@ from . import bbi_tagx_lagerliste
 from . import bbi_tagx_product_id
 from . import uom_tagx
 from . import bbi_fix_MO_location
+from . import bbi_get_count_candidates
