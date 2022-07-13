@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="bbi_stock_move_line_quants_uid" model="ir.ui.view">
+    <field name="name">bbi.stock.move.line.quants.uid</field>
+    <field name="model">stock.move.line</field>
+    <field name="inherit_id" ref="stock.view_move_line_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='state']" position="after">
+        <field name="create_uid" optional="show" widget="many2one_avatar_user" string="Bearbeiter/in"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
