@@ -7,6 +7,7 @@
     <field name="arch" type="xml">
       <xpath expr="//field[@name='default_code']" position="after">
         <field name='bbiDrawingNb' optional="show"/>
+        <field name='roterPunkt_qty' optional="show" attrs="{'invisible': [('detailed_type', '!=', 'consu')]}"/>
         <field name='locationName' optional="show"/>
         <field name='isSparePart' optional="show"/>
         <field name='qualityCheck' optional="show"/>

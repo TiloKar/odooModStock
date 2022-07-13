@@ -45,3 +45,13 @@ class ProductTemplate(models.Model):
     def generateScancode(self):
         if not self.default_code:
             return super(models.Model,self).write({'default_code' : str(self.id)})
+
+    roterPunkt_id = fields.Many2one(
+        'res.users', 'Roter Punkt - Wer',
+        help="Letzter Benutzer des Roter Punkt Felds",)
+
+    roterPunkt_qty = fields.Float(string='Nachbestellen', digits='Product Unit of Measure')
+
+    @api.onchange('roterPunkt_qty')
+    def _onchange_roterPunkt_qty(self):
+        self.roterPunkt_id = self.env.user

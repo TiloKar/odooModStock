@@ -38,8 +38,13 @@
           help="vergibt einen automatisch generierten Scancode"
           class="oe_link oe_read_only pt-0"/>
       </xpath>
+      <xpath expr="//field[@name='categ_id']" position="after">
+        <field name='roterPunkt_qty' attrs="{'invisible': [('detailed_type', '!=', 'consu')]}"/>
+        <field name='roterPunkt_id' widget="many2one_avatar_user" attrs="{'invisible': [('detailed_type', '!=', 'consu')]}"/>
+      </xpath>
     </field>
   </record>
+
   <!--record id="product_template_common_form_bbi" model="ir.ui.view">
     <field name="name">product.template.common.form.bbi</field>
     <field name="model">product.template</field>
