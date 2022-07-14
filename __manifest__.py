@@ -47,5 +47,6 @@
     'views/bbi_stock_move_line_quants_uid.xml',
     'views/product_template_search_view_bbi.xml',
     'views/bbi_stock_warehouse_orderpoint_tree_editable.xml',
+    'views/bbi_stock_warehouse_orderpoint_reorder_search.xml',
   ],
 }
