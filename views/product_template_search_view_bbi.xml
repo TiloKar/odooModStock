@@ -9,6 +9,10 @@
         <separator/>
         <filter name="consu_to_reorder_bbi" string="Roter Punkt gemeldete Nachbestellungen" domain="[('detailed_type', '=', 'consu'), ('roterPunkt_qty', '&gt;', 0)]" />
       </xpath>
+      <xpath expr="//field[@name='name']" position="after">
+        <field name="seller_ids" string="Produkte beim Lieferanten" filter_domain="[('seller_ids.name', 'ilike', self)]"/>
+        <field name="seller_ids" string="Artikelnummer beim Lieferanten" filter_domain="[('seller_ids.product_code', 'ilike', self)]"/>
+      </xpath>
     </field>
   </record>
 </odoo>
