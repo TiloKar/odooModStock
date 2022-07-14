@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_bbi_stock_loc_edit,bbi.stock.location,model_bbi_stock_location,base.group_user,1,0,0,0
 access_bbi_stock_loc_grant_all,bbi.stock.location,model_bbi_stock_location,stock.group_stock_manager,1,1,1,1
+access_bbi_stock_scripts_grant_all,bbi.scripts,model_bbi_scripts,stock.group_stock_manager,1,1,1,1

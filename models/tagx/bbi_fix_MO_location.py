@@ -3,8 +3,8 @@ import base64, xlrd
 from odoo.exceptions import ValidationError
 from datetime import date
 
-class BbiStockLocation(models.Model):
-    _inherit = 'bbi.stock.location'
+class BbiScripte(models.Model):
+    _inherit = "bbi.scripts"
 
     #repariert falsch übernommene mO locations und die alten PO
     def fixMoLocation(self):
