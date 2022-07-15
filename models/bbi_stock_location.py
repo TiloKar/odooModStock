@@ -7,7 +7,6 @@ class BbiStockLocation(models.Model):
     _name = "bbi.stock.location"
     _description = "Eigene Lagerorte als Attribute an product_template"
 
-    name = fields.Char(store = True, required = True , string = 'Eindeutige Lagerort Bezeichnung')
-
-    myFile = fields.Binary(string='Terminal Datenbank für Übernahme an Tag X')
-    myFile_file_name = fields.Char(String='Name')
+    name = fields.Char(store = True, required = True , string = 'Kurzbezeichnung')
+    room = fields.Char(store = True, string = 'Raumbezeichnung')
+    comment = fields.Char(store = True, string = 'Kommentar')

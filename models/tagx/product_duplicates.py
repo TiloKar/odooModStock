@@ -2,8 +2,8 @@ from odoo import api, fields, models
 import base64, xlrd
 from odoo.exceptions import ValidationError
 
-class BbiStockLocation(models.Model):
-    _inherit = 'bbi.stock.location'
+class BbiScripte(models.Model):
+    _inherit = "bbi.scripts"
 
     # comperator-funktion für REV Duplikatermittlung
     def compDuplicateHandler(self,p,toFind):

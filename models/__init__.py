@@ -5,17 +5,19 @@ from . import mrp_production
 from . import stock_move
 from . import stock_picking
 from . import bbi_stock_location
-from . import bbi_tagx_kaufmann_products
-from . import bbi_tagx_duplicates
-from . import bbi_tagx_kommilager
-from . import bbi_tagx_wareneingangsbuch
-from . import bbi_tagx_lagerliste
-from . import bbi_tagx_product_id
-from . import uom_tagx
+from . import bypass_raises
 
-from . import bbi_get_count_candidates
-from . import bbi_orderpoint_batch
 from . import stock_orderpoint
 
 from .tagx import bbi_script
-from .tagx import bbi_fix_MO_location
+from .tagx import kaufmann_products
+from .tagx import product_duplicates
+from .tagx import kommilager
+from .tagx import wareneingangsbuch
+from .tagx import lagerliste
+from .tagx import product_id
+from .tagx import typeFix
+from .tagx import get_count_candidates
+from .tagx import orderpoint_batch
+from .tagx import fix_MO_location
+from .tagx import repair_uom

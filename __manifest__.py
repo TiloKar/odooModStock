@@ -40,6 +40,7 @@
     'security/ir.model.access.csv',
     'views/product_template_form_view_bbi.xml',
     'views/product_template_tree_view_bbi.xml',
+    'views/bbi_scripte_action.xml',
     'views/bbi_location_menu_action.xml',
     'report/report_mrp_order.xml',
     'report/report_barcode_label.xml',

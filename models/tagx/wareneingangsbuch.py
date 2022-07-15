@@ -2,8 +2,8 @@ from odoo import api, fields, models
 import base64, xlrd, datetime
 from odoo.exceptions import ValidationError
 
-class BbiStockLocation(models.Model):
-    _inherit = 'bbi.stock.location'
+class BbiScripte(models.Model):
+    _inherit = "bbi.scripts"
 
     #einmalige übernahme des wareneingangs buchs an TagX
     #nur offene bestellungen werden übernommen und auch nicht bestätigt,

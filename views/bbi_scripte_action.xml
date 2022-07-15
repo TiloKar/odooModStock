@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="tagx_form_view" model="ir.ui.view">
+    <field name="name">tagx.form.view</field>
+    <field name="model">bbi.scripts</field>
+    <field name="arch" type="xml">
+      <form string="bbi Skripte">
+          <group>
+            <field name="name"/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <p>Nur zur internen Verwendung, Tag X Scripte:</p>
+            <p>
+              <field name='myFile' filename='myFile_file_name'/>
+              <field name='myFile_file_name' invisible='1'/>
+              <br/>
+              <br/>
+
+              <button name="fixMoLocation" type="object" string="alte MO reparieren" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="parseKaufmannProducts" type="object" string="Kaufmann Produkte holen" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="checkBarcodeDuplicates" type="object" string="Barcode Duplikate ermitteln" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="handleBarcodeDuplicates" type="object" string="Barcode Duplikate behandeln" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="handleMissingProductId" type="object" string="Fehlende product_id behandeln" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <!--button name="fixingType" type="object" string="product type bug fixen" class="oe_highlight"/>
+              <br/>
+              <br/-->
+              <button name="fixingUOMbbi" type="object" string="UOM bug fixen" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="generateKommilager" type="object" string="Projektlager erzeugen (MO)" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen (PO)" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="parseLagerListe" type="object" string="Terminal Datenbank als Inventurbestand testen (quants)" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="generateLagerListe" type="object" string="Terminal Datenbank als Inventurbestand übertragen (quants)" class="oe_highlight"/>
+              <br/>
+              <br/>
+
+              <button name="getPartToCount" type="object" string="Kandidaten für Zählung holen" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="addOrderPointInfo" type="object" string="Versuche Orderpoint infos zu setzen" class="oe_highlight"/>
+              <br/>
+              <br/>
+
+
+            </p>
+
+          </group>
+      </form>
+    </field>
+  </record>
+</odoo>

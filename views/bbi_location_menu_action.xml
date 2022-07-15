@@ -9,46 +9,13 @@
   <record id="stock_bbi_location_open_form" model="ir.actions.act_window">
     <field name="name">bbi Lagerorte bearbeiten</field>
     <field name="res_model">bbi.stock.location</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree</field>
   </record>
 
   <menuitem id="bbi_stock_location_open_menu_form" name="bbi Mods" parent="stock.menu_stock_config_settings" sequence="1" groups="stock.group_stock_manager">
     <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form" groups="stock.group_stock_manager"/>
     <menuitem id="bbi_stock_location_open_menu_form_2" action="tagx_bbi_open_form" groups="stock.group_stock_manager"/>
   </menuitem>
-
-
-  <record id="tagx_form_view" model="ir.ui.view">
-    <field name="name">tagx.form.view</field>
-    <field name="model">bbi.scripts</field>
-    <field name="arch" type="xml">
-      <form string="bbi Skripte">
-          <group>
-            <field name="name"/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <p>Nur zur internen Verwendung, Tag X Scripte:</p>
-            <p>
-              <field name='myFile' filename='myFile_file_name'/>
-              <field name='myFile_file_name' invisible='1'/>
-              <br/>
-              <br/>
-
-              <button name="fixMoLocation" type="object" string="alte MO reparieren" class="oe_highlight"/>
-              <br/>
-              <br/>
-
-
-            </p>
-
-          </group>
-      </form>
-    </field>
-  </record>
 
   <record id="stock_bbi_location_form_view" model="ir.ui.view">
     <field name="name">bbi.stock.location.form</field>
@@ -57,58 +24,21 @@
         <form string="bbi Location">
             <group>
                 <field name="name"/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <p>Nur zur internen Verwendung, Tag X Scripte:</p>
-                <p>
-
-                  <button name="parseKaufmannProducts" type="object" string="Kaufmann Produkte holen" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="checkBarcodeDuplicates" type="object" string="Barcode Duplikate ermitteln" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="handleBarcodeDuplicates" type="object" string="Barcode Duplikate behandeln" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="handleMissingProductId" type="object" string="Fehlende product_id behandeln" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <!--button name="fixingType" type="object" string="product type bug fixen" class="oe_highlight"/>
-                  <br/>
-                  <br/-->
-                  <button name="fixingUOMbbi" type="object" string="UOM bug fixen" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="parseKommilager" type="object" string="Projektlager prüfen (MO)" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="generateKommilager" type="object" string="Projektlager erzeugen (MO)" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="parseWareneingangsbuch" type="object" string="Wareneingangsbuch einlesen (PO)" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="parseLagerListe" type="object" string="Terminal Datenbank als Inventurbestand testen (quants)" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="generateLagerListe" type="object" string="Terminal Datenbank als Inventurbestand übertragen (quants)" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-
-                  <button name="getPartToCount" type="object" string="Kandidaten für Zählung holen" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                  <button name="addOrderPointInfo" type="object" string="Versuche Orderpoint infos zu setzen" class="oe_highlight"/>
-                  <br/>
-                  <br/>
-                </p>
+                <field name="room"/>
+                <field name="comment"/>
             </group>
         </form>
+    </field>
+  </record>
+  <record id="stock_bbi_location_tree_view" model="ir.ui.view">
+    <field name="name">bbi.stock.location.tree</field>
+    <field name="model">bbi.stock.location</field>
+    <field name="arch" type="xml">
+        <tree string="bbi Location" editable="top">
+          <field name="name"/>
+          <field name="room"/>
+          <field name="comment"/>
+        </tree>
     </field>
   </record>
 </odoo>
