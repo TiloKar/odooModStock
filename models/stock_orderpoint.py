@@ -2,8 +2,8 @@ from odoo import api, fields, models
 
 class StockWarehouseOrderpoint(models.Model):
     _inherit = 'stock.warehouse.orderpoint'
-    #supplier_id = fields.Many2one('product.supplierinfo', string='Product Supplier', check_company=True,domain="['|', ('product_id', '=', product_id), '&', ('product_id', '=', False), ('product_tmpl_id', '=', product_tmpl_id)]")
-    #vendor_id = fields.Many2one(related='supplier_id.name', string="Vendor", store=True)
+    supplier_id = fields.Many2one('product.supplierinfo', string='Product Supplier', check_company=True,domain="['|', ('product_id', '=', product_id), '&', ('product_id', '=', False), ('product_tmpl_id', '=', product_tmpl_id)]")
+    vendor_id = fields.Many2one(related='supplier_id.name', string="Vendor", store=True)
 
     #überschreiben der check methode für einheiten-verletzung mit selbst-reparatur
     # im moment noch nicht im einsatz

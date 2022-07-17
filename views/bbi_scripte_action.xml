@@ -63,7 +63,9 @@
               <button name="addOrderPointInfo" type="object" string="Versuche Orderpoint infos zu setzen" class="oe_highlight"/>
               <br/>
               <br/>
-
+              <button name="fixingProductsCompany" type="object" string="Repariere company id an producten" class="oe_highlight"/>
+              <br/>
+              <br/>
 
             </p>
 

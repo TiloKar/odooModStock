@@ -21,3 +21,4 @@ from .tagx import get_count_candidates
 from .tagx import orderpoint_batch
 from .tagx import fix_MO_location
 from .tagx import repair_uom
+from .tagx import repair_company_id_on_products
