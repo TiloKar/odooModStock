@@ -69,7 +69,9 @@
               <button name="fixingQuantLocation" type="object" string="Repariere quants  input to stock" class="oe_highlight"/>
               <br/>
               <br/>
-
+              <button name="fixingOldPOlines" type="object" string="Repariere PO lines in qty_received_method" class="oe_highlight"/>
+              <br/>
+              <br/>
 
             </p>
 

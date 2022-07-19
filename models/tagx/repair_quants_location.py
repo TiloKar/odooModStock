@@ -6,14 +6,6 @@ from datetime import date
 class BbiScripte(models.Model):
     _inherit = "bbi.scripts"
 
-
-    def propagatedMoveUpdate(self,m):
-        print("try to fix move {}".format(m.id))
-        if  m.location_id.id == 9:
-            m.update({'location_id':8})
-        elif m.location_dest_id.id == 9:
-            m.update({'location_dest_id':8})
-
     #repariert uom fehler nach rangieren der einheit im produkt, pauschal für alle referenzierenden entitäten
     def fixingQuantLocation(self):
         print("repairing quants")
