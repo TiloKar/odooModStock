@@ -66,6 +66,10 @@
               <button name="fixingProductsCompany" type="object" string="Repariere company id an producten" class="oe_highlight"/>
               <br/>
               <br/>
+              <button name="fixingQuantLocation" type="object" string="Repariere quants  input to stock" class="oe_highlight"/>
+              <br/>
+              <br/>
+
 
             </p>
 
