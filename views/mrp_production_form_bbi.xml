@@ -14,6 +14,9 @@
           attrs="{'column_invisible': [('parent.materialCerts', '=', False)]}"
         />
       </xpath>
+      <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
+        <attribute name="limit">100</attribute>
+      </xpath>
     </field>
   </record>
 </odoo>

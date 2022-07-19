@@ -6,7 +6,8 @@
       <table>
         <tr>
           <td colspan="2" style="border-bottom:1pt solid black;">
-            <div t-out="doc.name if len(doc.name) &lt; 37 else doc.name[:37]" style="height:5mm;font-size: 4mm';white-space: nowrap;"/>
+            <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="height:5mm;font-size: 3mm';white-space: nowrap;"/>
+
           </td>
         </tr>
         <tr>
@@ -14,7 +15,7 @@
             <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm;'}"/>
           </td>
           <td>
-            <div t-field="doc.default_code" style="font-size: 3mm';"/>
+            <div t-field="doc.default_code" style="font-size: 4mm';"/>
             <div t-field="doc.bbiDrawingNb" style="font-size: 3mm';"/>
             <div t-if="doc.detailed_type in ['consu']" style="font-size: 3mm';">
               VERBRAUCHSARTIKEL (roter Punkt)
