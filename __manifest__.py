@@ -49,6 +49,7 @@
     'views/product_template_search_view_bbi.xml',
     'views/bbi_stock_warehouse_orderpoint_tree_editable.xml',
     'views/bbi_stock_warehouse_orderpoint_reorder_search.xml',
-    'views/bbi_mrp_production_select.xml',
+    'views/bbi_mrp_production_search_view.xml',
+    'views/mrp_production_remove_filter.xml',
   ],
 }

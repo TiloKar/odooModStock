@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp.mrp_production_action" model="ir.actions.act_window">
+            <field name="context">{'default_company_id': allowed_company_ids[0]}</field>
+        </record>
+  </data>
+</odoo>
