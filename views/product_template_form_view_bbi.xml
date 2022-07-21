@@ -16,6 +16,7 @@
         <field name='webshop'/>
         <xpath expr="//field[@name='uom_id']" position="move"/>
         <xpath expr="//field[@name='uom_po_id']" position="move"/>
+        <field name="write_uid" string="Letzte/r Bearbeiter/in" widget="many2one_avatar_user" />
       </xpath>
     </field>
   </record>
