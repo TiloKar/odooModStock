@@ -1,32 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="report_barcode_label">
-  <t t-call="web.html_container">
-    <t t-foreach="docs" t-as="doc">
-      <table>
-        <tr>
-          <td colspan="2" style="border-bottom:1pt solid black;">
-            <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="height:5mm;font-size: 3mm';white-space: nowrap;"/>
+<template id="report_barcode_label_small">
+  <t t-call="web.basic_layout">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <table   >
+          <tr>
+            <td colspan="2" style="border-bottom:1pt solid black; width: 280px;">
+              <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="height:5mm;font-size: 3mm';white-space: nowrap;"/>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm; margin-top: 8px; margin-right: 3px;'}"/>
+            </td>
+            <td>
+              <div t-field="doc.default_code" style="font-size: 4mm';"/>
+              <div t-field="doc.bbiDrawingNb" style="font-size: 3mm';"/>
+              <div t-if="doc.detailed_type in ['consu']" style="font-size: 3mm';">
+                VERBRAUCHSARTIKEL (roter Punkt)
+              </div>
+              <div t-if="doc.tracking not in ['none']" style="font-size: 3mm';">
+                !! CHARGENVERFOLGUNG !!
+              </div>
+              <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="font-size: 3mm';"/>
+            </td>
+          </tr>
+        </table>
+      </t>
+    </t>
+  </t>
+</template>
 
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm;'}"/>
-          </td>
-          <td>
-            <div t-field="doc.default_code" style="font-size: 4mm';"/>
-            <div t-field="doc.bbiDrawingNb" style="font-size: 3mm';"/>
-            <div t-if="doc.detailed_type in ['consu']" style="font-size: 3mm';">
-              VERBRAUCHSARTIKEL (roter Punkt)
-            </div>
-            <div t-if="doc.tracking not in ['none']" style="font-size: 3mm';">
-              !! CHARGENVERFOLGUNG !!
-            </div>
-            <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="font-size: 3mm';"/>
-          </td>
-        </tr>
-      </table>
+<template id="report_barcode_label_big">
+  <t t-call="web.basic_layout">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page" style="page-break-after: always;">
+          <div t-out="doc.name if len(doc.name) &lt; 45 else doc.name[:45]" style=" margin-bottom: 3 px; font-size: 5mm';"/>
+          <div t-if="doc.detailed_type in ['consu']" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';">VERBRAUCHSARTIKEL (roter Punkt)</div>
+          <div t-if="doc.tracking not in ['none']" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';">!! CHARGENVERFOLGUNG !!</div>
+          <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';"/>
+        </div>
+        <div>
+          <table>
+            <tr>
+              <td>
+                <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm; margin-right: 3px;'}" />
+              </td>
+              <td>
+                <div t-out="doc.default_code if len(doc.default_code) &lt; 39 else (doc.default_code[:39] +  &quot;...&quot;)" style="word-break: break-all; font-size: 4mm';"/>
+              </td>
+            </tr>
+          </table>
+          <div t-if="doc.default_code!=doc.bbiDrawingNb" t-out="&quot;Zeichnungsnr.: &quot; + doc.bbiDrawingNb" style="margin-top: 5px; padding-top:3px; border-top: 1px solid #000; font-size: 3mm';"/>
+        </div>
+      </t>
     </t>
   </t>
 </template>
