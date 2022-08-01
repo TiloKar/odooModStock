@@ -52,6 +52,11 @@ class ProductTemplate(models.Model):
 
     roterPunkt_qty = fields.Float(string='Nachbestellen', digits='Product Unit of Measure')
 
+    roterPunkt_date = fields.Datetime('Roter Punkt - Wann',
+        help='Das Datum, wann die Nachbestellung geändert wurde',
+        readonly=False)
+
     @api.onchange('roterPunkt_qty')
     def _onchange_roterPunkt_qty(self):
         self.roterPunkt_id = self.env.user
+        self.roterPunkt_date = self.write_date
