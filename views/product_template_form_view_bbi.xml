@@ -12,12 +12,37 @@
         <field name='qualityCheck'/>
         <xpath expr="//field[@name='categ_id']" position="move"/>
       </xpath>
-      <xpath expr="//group[@name='group_standard_price']" position="inside">
-        <field name='webshop'/>
-        <xpath expr="//field[@name='uom_id']" position="move"/>
-        <xpath expr="//field[@name='uom_po_id']" position="move"/>
-        <field name='bbiMaterial_id'/>
-        <field name="write_uid" string="Letzte/r Bearbeiter/in" widget="many2one_avatar_user" />
+
+      <xpath expr="//field[@name='uom_id']" position="replace"/>
+      <xpath expr="//field[@name='uom_po_id']" position="replace"/>
+
+      <xpath expr="//group[@name='group_standard_price']" position="replace">
+        <group name = "group_standard_price">
+          <label for="list_price" class="mt-1" groups="sales_team.group_sale_salesman, purchase.group_purchase_user"/>
+          <div name="pricing" groups="sales_team.group_sale_salesman, purchase.group_purchase_user">
+            <field name="list_price" class="oe_inline" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+          </div>
+          <label for="standard_price" groups="sales_team.group_sale_salesman, purchase.group_purchase_user" attrs="{'invisible': [('product_variant_count', '&gt;', 1), ('is_product_variant', '=', False)]}"/>
+          <div name="standard_price_uom" groups="sales_team.group_sale_salesman, purchase.group_purchase_user" attrs="{'invisible': [('product_variant_count', '&gt;', 1), ('is_product_variant', '=', False)]}" class="o_row">
+              <field name="standard_price" widget="monetary" options="{'currency_field': 'cost_currency_id', 'field_digits': True}"/>
+              <span groups="uom.group_uom" class="oe_read_only">
+                  <field name="uom_name"/>
+              </span>
+          </div>
+
+          <field name="categ_id" string="Product Category"/>
+          <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+          <field name="currency_id" invisible="1"/>
+          <field name="cost_currency_id" invisible="1"/>
+          <field name="product_variant_id" invisible="1"/>
+          <field name='webshop'/>
+          <field name='uom_id'/>
+          <field name='uom_po_id'/>
+
+          <field name='bbiMaterial_id'/>
+          <field name="write_uid" string="Letzte/r Bearbeiter/in" widget="many2one_avatar_user" />
+        </group>
+
       </xpath>
     </field>
   </record>

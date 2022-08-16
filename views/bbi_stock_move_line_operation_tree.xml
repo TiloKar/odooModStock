@@ -7,7 +7,7 @@
     <field name="arch" type="xml">
         <xpath expr="//field[@name='qty_done']" position="before">
           <field name='product_id' invisible="1"/>
-          <field name='bbiSchmelze_name'  attrs="{'invisible':['|', ('bbiMaterial_name', '!=', 'Edelstahl'), ('lot_id', '=', False)]}" string="Schmelze" invisible="not context.get('not_schmelze')"/>
+          <field name='bbiSchmelze_name'  attrs="{'invisible':['|', ('bbiMaterial_name', '!=', 'Edelstahl'), ('lot_id', '=', False)]}"  invisible="not context.get('show_lots_m2o')" string="Schmelze" />
           <field name='bbiMaterial_name' string="Material"/>
           <button name="action_print_serialnumber_bbi" type="object" string="bbi-Zertifikat" class="oe_highlight"/>
         </xpath>
