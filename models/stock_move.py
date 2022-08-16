@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
@@ -15,3 +16,10 @@ class StockMove(models.Model):
         string="Deep Check",
         readonly=True,
         store=False,)
+
+    def action_print_serialnumber_bbi(self):
+        return self.env.ref('bbi_mod_stock.action_report_seriennummer_bbi').report_action(self)
+
+        if self.id != 1:
+            print(self.id)
+            raise ValidationError("Test")

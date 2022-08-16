@@ -12,8 +12,8 @@
                 <field name="vendor_id" string="Lieferant"/>
             </xpath>
             <xpath expr="//filter[@name='filter_to_reorder']" position="before" >
-                <filter name="filter_to_manufacture" string="Herstellbar oder nicht definiert" domain="['|', ('bom_id', '!=', False), ('vendor_id', '=', False)]"/>
-                <filter name="filter_to_purchase" string="Einkaufbar oder nicht definiert" domain="['|', ('vendor_id', '!=', False), ('bom_id', '=', False)]" />
+                <filter name="filter_to_manufacture" string="Herstellbar oder nicht definiert" domain="['|', ('route_id', '=', 5), ('route_id', '=', False)]"/>
+                <filter name="filter_to_purchase" string="Einkaufbar oder nicht definiert" domain="['|', ('route_id', '=', 7), ('route_id', '=', False)]"/>
                 <separator/>
             </xpath>
         </field>

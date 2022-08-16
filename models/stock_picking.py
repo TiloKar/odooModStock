@@ -1,13 +1,11 @@
 from odoo import api, fields, models
 import csv, base64, sys, xlrd
 from odoo.exceptions import ValidationError
+from odoo import http
+from odoo.http import request, content_disposition, route
 
 class Picking(models.Model):
     _inherit = 'stock.picking'
-
-    #csv_file = fields.Binary(string='CSV File')
-
-    #output = fields.Char(string='internal output')
 
     external_origin = fields.Char(
         string = 'externe LS-Nr.',

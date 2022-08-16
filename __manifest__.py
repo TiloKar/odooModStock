@@ -28,6 +28,11 @@
      - TODO Erstzteil Export aus BOM einer explodierten stückliste für den Baum (eventuell auch matrixdarstellung mit Struktur)
      - TODO Idee strukturstücklisten aus solid works parsen
      - TODO idee: auto-anlegen der produkte unter K-Referenz und name bei auswahl von autoCreateProducts
+     - bbiMaterial speziell für die Schmelzinformationen der Lieferanten hinzugefügt --> Bedingung nur Edelstahl
+     - label für die Chargennummer --> Schmelzinformatioen werden hier benötigt
+     - replentishment button / action bearbeitet (unsicher)
+     - xml für stock.move.lines angepasst um die Chargennummern hinzuzufügen
+     - Material in die Product.template hinzugefügt
 
     """,
   'depends': [
@@ -51,5 +56,7 @@
     'views/bbi_stock_warehouse_orderpoint_reorder_search.xml',
     'views/bbi_mrp_production_search_view.xml',
     'views/mrp_production_remove_filter.xml',
+    'report/report_seriennummer.xml',
+    'views/bbi_stock_move_line_operation_tree.xml',
   ],
 }

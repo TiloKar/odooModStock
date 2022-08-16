@@ -17,6 +17,22 @@
       <field name="dpi">90</field>
     </record>
 
+    <record id="paperformat_bbi_seriennummer" model="report.paperformat">
+      <field name="name">SERIENNUMMER LABEL</field>
+      <field name="default" eval="True"/>
+      <field name="format">custom</field>
+      <field name="page_height">62</field>
+      <field name="page_width">21</field>
+      <field name="orientation">Landscape</field>
+      <field name="margin_top">3</field>
+      <field name="margin_bottom">3</field>
+      <field name="margin_left">1</field>
+      <field name="margin_right">1</field>
+      <field name="header_line" eval="False"/>
+      <field name="header_spacing">10</field>
+      <field name="dpi">90</field>
+    </record>
+
     <record id="report_scancode_label_small" model="ir.actions.report">
         <field name="name">Print bbi Barcode Label (klein)</field>
         <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
@@ -40,5 +56,18 @@
         <field name="binding_model_id" ref="model_product_template"/>
         <field name="binding_type">report</field>
     </record>
+
+    <record id="report_bbi_warenausgang" model="ir.actions.report">
+        <field name="name">Print Warenausgangslabel</field>
+        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bbi_mod_stock.report_bbi_warenausgang1</field>
+        <field name="report_file">bbi_mod_stock.report_bbi_warenausgang1</field>
+        <field name="print_report_name">'bbi WH OUT Label - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_type">report</field>
+    </record>
+
   </data>
 </odoo>

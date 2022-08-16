@@ -42,6 +42,19 @@ class ProductTemplate(models.Model):
         readonly=True,
         store=False,)
 
+    bbiMaterial_id = fields.Many2one(
+        'bbi.material',
+        string="Material",
+        required = False,
+        )
+
+    bbiMaterial_name = fields.Char(
+        related='bbiMaterial_id.name',
+        string='Materialart',
+        readonly=False,
+        store=True,
+        )
+
     def generateScancode(self):
         if not self.default_code:
             return super(models.Model,self).write({'default_code' : str(self.id)})
@@ -60,3 +73,14 @@ class ProductTemplate(models.Model):
     def _onchange_roterPunkt_qty(self):
         self.roterPunkt_id = self.env.user
         self.roterPunkt_date = self.write_date
+
+    @api.onchange('bbiMaterial_name', 'bbiMaterial_id')
+    def checkSchmelze(self):
+        if self.bbiMaterial_name != "Edelstahl":
+            result = self.env['stock.production.lot'].search([('bbiSchmelze', '!=', False)])
+            exists = 0
+            for i in result:
+                if i.product_id.product_tmpl_id.default_code == self.default_code:
+                    exists = exists +1
+            if exists > 0:
+                raise ValidationError ("Es existiert breits eine Schmelznummer!")

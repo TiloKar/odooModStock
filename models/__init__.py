@@ -6,6 +6,10 @@ from . import stock_move
 from . import stock_picking
 from . import bbi_stock_location
 from . import bypass_raises
+from . import stock_production_lot
+from . import bbi_material
+from . import stock_move_line
+
 
 from . import stock_orderpoint
 

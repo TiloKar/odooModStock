@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <record id="action_report_seriennummer_bbi" model="ir.actions.report">
+        <field name="name">bbi Seriennummer</field>
+        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
+        <field name="model">stock.move.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bbi_mod_stock.report_seriennummer_bbi</field>
+        <field name="report_file">bbi_mod_stock.report_seriennummer_bbi</field>
+        <field name="print_report_name">'bbi Seriennummer - %s' % (object.move_id.name)</field>
+        <!--field name="binding_model_id" ref="model_stock_move"/-->
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_seriennummer_bbi">
+        <t t-call="web.basic_layout">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc" >
+
+                    <!--Zertifikatsnummer-->
+                    <t t-foreach="request.env['stock.move.line'].search([('move_id', '=', doc.id)])" t-as="obj2">
+                        <div style="font-size: 12px; border-bottom: solid black 1px; margin-bottom: 1px;">
+                            <span t-out="doc.lot_id.name"/>
+                        </div>
+                    </t>
+
+                    <!--Produktname-->
+                    <div t-if="doc.product_id.product_tmpl_id.name" t-out="doc.product_id.product_tmpl_id.name" style="font-size: 3mm;"/>
+
+                    <!--Lieferant-->
+                    <div style="font-size: 3mm;">
+                        <span>Lieferant: </span>
+                        <span t-if="doc.move_id.purchase_line_id.order_id.partner_id.name" t-out="doc.move_id.purchase_line_id.order_id.partner_id.name" />
+                    </div>
+
+
+                    <!--Lieferscheinnummer und Datum-->
+                    <t t-foreach="request.env['stock.picking'].search([('name', '=', doc.move_id.reference)])" t-as="obj">
+                        <div style="font-size: 3mm;">
+                            <span t-out="obj.external_origin"/>
+                            <span> - </span>
+                            <span t-out="obj.date_done" t-options="{'widget': 'date'}"/>
+                        </div>
+                    </t>
+
+                    <!--Material-->
+                    <div style="font-size: 2mm;" t-if="doc.product_id.product_tmpl_id.bbiMaterial_name">
+                        <span>Material: </span>
+                        <span  t-out="doc.product_id.product_tmpl_id.bbiMaterial_name"/>
+                        <span> / </span>
+                        <!--Schmelze-->
+
+                        <span>Schmelze: </span>
+                        <span t-out="doc.bbiSchmelze_name"/>
+
+                    </div>
+
+
+
+
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

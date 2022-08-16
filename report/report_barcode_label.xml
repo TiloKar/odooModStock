@@ -45,18 +45,75 @@
         <div>
           <table>
             <tr>
-              <td>
+              <td t-if="doc.default_code">
                 <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm; margin-right: 3px;'}" />
               </td>
-              <td>
+              <td t-if="doc.default_code">
                 <div t-out="doc.default_code if len(doc.default_code) &lt; 39 else (doc.default_code[:39] +  &quot;...&quot;)" style="word-break: break-all; font-size: 4mm';"/>
               </td>
             </tr>
           </table>
-          <div t-if="doc.default_code!=doc.bbiDrawingNb" t-out="&quot;Zeichnungsnr.: &quot; + doc.bbiDrawingNb" style="margin-top: 5px; padding-top:3px; border-top: 1px solid #000; font-size: 3mm';"/>
+          <t t-if="doc.bbiDrawingNb">
+            <div t-if="doc.default_code!=doc.bbiDrawingNb" t-out="&quot;Zeichnungsnr.: &quot; + doc.bbiDrawingNb" style="margin-top: 5px; padding-top: 3px; border-top: 1px solid #000; font-size: 3mm';"/>
+            </t>
         </div>
       </t>
     </t>
   </t>
 </template>
+
+
+<template id="report_bbi_warenausgang1">
+  <t t-call="web.basic_layout">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+
+        <!-- Set Company-->
+        <t t-if="not company">
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <!--Label-->
+        <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="
+          line-height:20px;
+          height:11mm; font-size: 4,5mm;
+          display: block;
+          text-overflow: ellipsis;
+          word-wrap: break-word;
+          overflow: hidden;"/>
+        <div t-if="doc.default_code" t-out="doc.default_code if len(doc.default_code) &lt; 39 else (doc.default_code[:39] +  &quot;...&quot;)" style="margin-top:3px;font-size: 3mm';"/>
+        <t t-foreach="request.env['mrp.bom'].search([('product_tmpl_id', '=', doc.id)])" t-as="obj">
+          <t t-if="obj.product_qty>0">
+            <div style="top:80px;position:absolute; margin-left: 160px;font-size: 3mm;">
+                <span t-out="'%.0f'%(obj.product_qty)"/>
+                <span t-out="obj.product_uom_id.name"/>
+            </div>
+          </t>
+        </t>
+
+        <!--Fall, wenn keine BoM angehangen wurde, wurde nicht abgelehnt von Antje-->
+        <!--t t-set="temp" t-value="0"/>
+        <t t-foreach="request.env['mrp.bom'].search([('product_tmpl_id', '=', doc.id)])" t-as="obj">
+          <t t-if="obj" t-set="temp" t-value="1"/>
+        </t>
+        <t t-if="temp == 0">
+          <span style="top:80px;position:absolute; margin-left: 160px;font-size: 3mm;">Default</span>
+      </t-->
+
+        <img style="height:25px;position:absolute;top:69px; page-break-inside: avoid;" t-if="company.logo" t-att-src="image_data_uri(company.logo)"/>
+      </t>
+    </t>
+  </t>
+</template>
+
+
+
 </odoo>
