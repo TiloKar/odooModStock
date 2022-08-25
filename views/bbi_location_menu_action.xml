@@ -12,9 +12,16 @@
     <field name="view_mode">tree</field>
   </record>
 
+  <record id="stock_bbi_Material_open_form" model="ir.actions.act_window">
+    <field name="name">bbi Material</field>
+    <field name="res_model">bbi.material</field>
+    <field name="view_mode">tree</field>
+  </record>
+
   <menuitem id="bbi_stock_location_open_menu_form" name="bbi Mods" parent="stock.menu_stock_config_settings" sequence="1" groups="stock.group_stock_manager">
     <menuitem id="bbi_stock_location_open_menu_form_1" action="stock_bbi_location_open_form" groups="stock.group_stock_manager"/>
     <menuitem id="bbi_stock_location_open_menu_form_2" action="tagx_bbi_open_form" groups="stock.group_stock_manager"/>
+    <menuitem id="bbi_stock_location_open_menu_form_3" action="stock_bbi_Material_open_form" groups="stock.group_stock_manager"/>
   </menuitem>
 
   <record id="stock_bbi_location_form_view" model="ir.ui.view">

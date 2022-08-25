@@ -55,6 +55,16 @@ class ProductTemplate(models.Model):
         store=True,
         )
 
+    # Die dazugehörige Protokollhistorie ist in bypass_raises.py zu finden
+    protokoll_ids = fields.One2many('bbi.history', 'product_tmpl_id', readonly=True)
+
+    #@api.onchange('default_code')
+    #def getOldHistory(self):
+    #    ids = []
+    #    for i in self:
+    #        for j in i.protokoll_ids:
+    #            print(str(j._origin.id))
+
     def generateScancode(self):
         if not self.default_code:
             return super(models.Model,self).write({'default_code' : str(self.id)})

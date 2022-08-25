@@ -256,7 +256,51 @@ class ProductTemplate(models.Model):
             print("bypassing raise in product_template.write(vals)")
             #raise UserError(_("Available quantity should be set to zero before changing type"))
         # hier super call verändert, damit nicht die alte methode nochmal aufgerufen wird
+
+
+        #Hinzufügen von Datensätzen aus dem Protokollfeature aus Produkt Template diese Datensätze werden an bbi_history angehangen
+        #Es wird zwischen roter punkt Produkten und anderen Produkten unterschieden, wodurch weniger und präzisere Daten übertragen werden.
+
+        #Fall roter Punkt
+        if self.detailed_type == 'consu':
+            protokoll_historie=[]
+            protokoll_historie.append({
+                'name': self.name,
+                'default_code' : self.default_code,
+                'product_tmpl_id': self._origin.id,
+                'bbiDrawingNb': self.bbiDrawingNb,
+                'roterPunkt_qty': self.roterPunkt_qty,
+                'roterPunkt_id': self.roterPunkt_id.partner_id.name,
+                'detailed_type': self.detailed_type,
+                'hs_code': self.hs_code,
+                'uom_id': self.uom_id.name,
+                'uom_po_id': self.uom_po_id.name,
+                'list_price': self.list_price
+            })
+            self.env['bbi.history'].create(protokoll_historie)
+
+        #Fall Einlagerbar / Dienstleistung / etc
+        else:
+            print("self: " + str(self.default_code))
+            if vals:
+                print("Vals: " + str(vals))
+            protokoll_historie=[]
+            protokoll_historie.append({
+                'name': self.name,
+                'default_code' : self.default_code,
+                'product_tmpl_id': self._origin.id,
+                'bbiDrawingNb': self.bbiDrawingNb,
+                'detailed_type': self.detailed_type,
+                'hs_code': self.hs_code,
+                'uom_id': self.uom_id.name,
+                'uom_po_id': self.uom_po_id.name,
+                'list_price': self.list_price
+            })
+            self.env['bbi.history'].create(protokoll_historie)
+
         return super(models.Model,self).write(vals)
+
+
 
 class UoM(models.Model):
     _inherit = 'uom.uom'

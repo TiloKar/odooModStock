@@ -8,6 +8,7 @@ from . import bbi_stock_location
 from . import bypass_raises
 from . import stock_production_lot
 from . import bbi_material
+from . import bbi_history
 from . import stock_move_line
 
 

@@ -58,5 +58,6 @@
     'views/mrp_production_remove_filter.xml',
     'report/report_seriennummer.xml',
     'views/bbi_stock_move_line_operation_tree.xml',
+    'views/bbi_history_form_view.xml',
   ],
 }

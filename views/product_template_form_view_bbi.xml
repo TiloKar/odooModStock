@@ -5,14 +5,6 @@
     <field name="model">product.template</field>
     <field name="inherit_id" ref="product.product_template_form_view"/>
     <field name="arch" type="xml">
-      <xpath expr="//field[@name='detailed_type']" position="after">
-        <field name='bbiDrawingNb'/>
-        <field name='bbiStockLocation_id'/>
-        <field name='isSparePart'/>
-        <field name='qualityCheck'/>
-        <xpath expr="//field[@name='categ_id']" position="move"/>
-      </xpath>
-
       <xpath expr="//field[@name='uom_id']" position="replace"/>
       <xpath expr="//field[@name='uom_po_id']" position="replace"/>
 
@@ -29,7 +21,6 @@
                   <field name="uom_name"/>
               </span>
           </div>
-
           <field name="categ_id" string="Product Category"/>
           <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
           <field name="currency_id" invisible="1"/>
@@ -38,11 +29,18 @@
           <field name='webshop'/>
           <field name='uom_id'/>
           <field name='uom_po_id'/>
-
           <field name='bbiMaterial_id'/>
-          <field name="write_uid" string="Letzte/r Bearbeiter/in" widget="many2one_avatar_user" />
+          <!-- Durch das Protokoll überflüssig-->
+          <!--field name="write_uid" string="Letzte/r Bearbeiter/in" widget="many2one_avatar_user" /-->
         </group>
+      </xpath>
 
+      <xpath expr="//field[@name='detailed_type']" position="after">
+        <field name='bbiDrawingNb'/>
+        <field name='bbiStockLocation_id'/>
+        <field name='isSparePart'/>
+        <field name='qualityCheck'/>
+        <xpath expr="//field[@name='categ_id']" position="move"/>
       </xpath>
     </field>
   </record>
@@ -66,21 +64,19 @@
           class="oe_link oe_read_only pt-0"/>
       </xpath>
       <xpath expr="//field[@name='categ_id']" position="after">
-        <field name='roterPunkt_qty' attrs="{'invisible': [('detailed_type', '!=', 'consu')]}"/>
+        <field name='roterPunkt_qty' attrs="{'invisible': [('detailed_type', '!=', 'consu')]}" groups="bbi_mod_sale.fundamental_rights_user"/>
         <field name='roterPunkt_id' widget="many2one_avatar_user" attrs="{'invisible': [('detailed_type', '!=', 'consu')]}"/>
         <field name='roterPunkt_date' attrs="{'invisible': [('detailed_type', '!=', 'consu')]}" widget="date"/>
       </xpath>
-    </field>
-  </record>
-
-  <!--record id="product_template_common_form_bbi" model="ir.ui.view">
-    <field name="name">product.template.common.form.bbi</field>
-    <field name="model">product.template</field>
-    <field name="inherit_id" ref="product.product_template_form_view"/>
-    <field name="arch" type="xml">
-      <xpath expr="//field[@group='group_standard_price']" position="inside">
-        <field name='webshop'/>
+      <xpath expr="//page[@name='inventory']" position="after">
+        <page name="history" string="Protokoll">
+          <group name="Ersteller">
+            <field name="create_uid" widget="many2one_avatar_user" string="Ersteller" />
+            <field name="create_date" string="Erstellungsdatum" />
+          </group>
+          <field name ="protokoll_ids" />
+        </page>
       </xpath>
     </field>
-  </record-->
+  </record>
 </odoo>
