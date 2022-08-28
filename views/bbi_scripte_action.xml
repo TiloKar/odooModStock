@@ -72,6 +72,12 @@
               <button name="fixingOldPOlines" type="object" string="Repariere PO lines in qty_received_method" class="oe_highlight"/>
               <br/>
               <br/>
+              <button name="updateKaufmannPrices" type="object" string="Update der Einkaufspreise" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="fixingPickingLocation" type="object" string="Update des Lagerziels auf WH/Stock" class="oe_highlight"/>
+              <br/>
+              <br/>
 
             </p>
 
