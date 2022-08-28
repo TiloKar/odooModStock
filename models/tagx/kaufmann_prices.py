@@ -60,10 +60,10 @@ class BbiScripte(models.Model):
                     'standard_price': p['standard_price'],
                 })
                 print("kaufmann zeile: {} für update aufgenommen".format(i))
-            candidatesOdoo.remove({ #damit für alle folgenden iterationen die suchkandidaten kleiner werden
-                'id' : result[0]['id'],
-                'default_code' : result[0]['default_code'],
-            })
+                candidatesOdoo.remove({ #damit für alle folgenden iterationen die suchkandidaten kleiner werden
+                    'id' : result[0]['id'],
+                    'default_code' : result[0]['default_code'],
+                })
         ausgabe = ''
 
         n = len(toUpdate)
