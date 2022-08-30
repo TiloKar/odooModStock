@@ -1,69 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+verkorkste seitenverhältnisse mit brother ql 820nwb und 62 mm rolle
+
+- datei muss 59x22 und randlos sein. Druckertreiber: 62 mm rolle, breite 28 mm + 3 mm vorschub und hochformat
+
+
+-->
 <odoo>
 <template id="report_barcode_label_small">
   <t t-call="web.basic_layout">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="doc">
-        <table   >
-          <tr>
-            <td colspan="2" style="border-bottom:1pt solid black; width: 280px;">
-              <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="height:5mm;font-size: 3mm';white-space: nowrap;"/>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm; margin-top: 8px; margin-right: 3px;'}"/>
-            </td>
-            <td>
-              <div t-field="doc.default_code" style="font-size: 4mm';"/>
-              <div t-field="doc.bbiDrawingNb" style="font-size: 3mm';"/>
-              <div t-if="doc.detailed_type in ['consu']" style="font-size: 3mm';">
-                VERBRAUCHSARTIKEL (roter Punkt)
-              </div>
-              <div t-if="doc.tracking not in ['none']" style="font-size: 3mm';">
-                !! CHARGENVERFOLGUNG !!
-              </div>
-              <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="font-size: 3mm';"/>
-            </td>
-          </tr>
-        </table>
+        <div t-out="doc.name if len(doc.name) &lt; 40 else doc.name[:40]" style="
+          position:absolute;top:0px;left:1px;
+          border-bottom:1pt solid black; width: 280px;
+          line-height:20px;
+          height:20px; font-size: 18px;
+          display: block;
+          text-overflow: ellipsis;
+          word-break: break-all;
+          overflow: hidden;"/>
+          <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:75px;width:75px;'}"
+            style="position:absolute;top:22px;left:1px;"/>
+          <div style="position:absolute;top:22px;left:78px;">
+            <div t-field="doc.default_code" style="
+              line-height:14px;
+              height:14px; font-size: 12px;
+              display: block;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              overflow: hidden;"/>
+            <div t-field="doc.bbiDrawingNb" style="
+              line-height:14px;
+              height:14px; font-size: 12px;
+              display: block;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              overflow: hidden;"/>
+            <div t-if="doc.detailed_type in ['consu']" style="
+              line-height:14px;
+              height:14px; font-size: 12px;
+              display: block;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              overflow: hidden;">
+              VERBRAUCHSARTIKEL (roter Punkt)
+            </div>
+            <div t-if="doc.tracking not in ['none']" style="
+              line-height:14px;
+              height:14px; font-size: 12px;
+              display: block;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              overflow: hidden;">
+              !! CHARGENVERFOLGUNG !!
+            </div>
+            <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="
+                line-height:14px;
+                height:14px; font-size: 12px;
+                display: block;
+                text-overflow: ellipsis;
+                word-break: break-all;
+                overflow: hidden;"/>
+          </div>
       </t>
     </t>
   </t>
 </template>
 
-<template id="report_barcode_label_big">
+<template id="report_big_screw_label">
   <t t-call="web.basic_layout">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="doc">
-        <div class="page" style="page-break-after: always;">
-          <div t-out="doc.name if len(doc.name) &lt; 45 else doc.name[:45]" style=" margin-bottom: 3 px; font-size: 5mm';"/>
-          <div t-if="doc.detailed_type in ['consu']" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';">VERBRAUCHSARTIKEL (roter Punkt)</div>
-          <div t-if="doc.tracking not in ['none']" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';">!! CHARGENVERFOLGUNG !!</div>
-          <div t-if="doc.bbiStockLocation_id" t-field="doc.bbiStockLocation_id.name" style="border-top: 2px solid #000 ; padding-top: 3px; font-size: 3mm';"/>
-        </div>
-        <div>
-          <table>
-            <tr>
-              <td t-if="doc.default_code">
-                <div t-out="doc.default_code" t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'height:15mm;width:15mm; margin-right: 3px;'}" />
-              </td>
-              <td t-if="doc.default_code">
-                <div t-out="doc.default_code if len(doc.default_code) &lt; 39 else (doc.default_code[:39] +  &quot;...&quot;)" style="word-break: break-all; font-size: 4mm';"/>
-              </td>
-            </tr>
-          </table>
-          <t t-if="doc.bbiDrawingNb">
-            <div t-if="doc.default_code!=doc.bbiDrawingNb" t-out="&quot;Zeichnungsnr.: &quot; + doc.bbiDrawingNb" style="margin-top: 5px; padding-top: 3px; border-top: 1px solid #000; font-size: 3mm';"/>
-            </t>
-        </div>
+        <span>Schraubenetikett für 62 mm Rolle automatisch aus Name</span>
+      </t>
+    </t>
+  </t>
+</template>
+
+<template id="report_bbi_product_label_new">
+  <t t-call="web.basic_layout">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <span>Label gerastert auf A4 Blatt für farbige Sticker</span>
+      </t>
+    </t>
+  </t>
+</template>
+
+<template id="report_bbi_product_label_front">
+  <t t-call="web.basic_layout">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <!--Label-->
+        <div t-out="doc.name" style="
+          line-height:25px;
+          height:50px; font-size: 23px;
+          display: block;
+          text-overflow: ellipsis;
+          word-wrap: break-word;
+          overflow: hidden;"/>
       </t>
     </t>
   </t>
 </template>
 
 
-<template id="report_bbi_warenausgang1">
+<template id="report_bbi_product_label_old">
   <t t-call="web.basic_layout">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="doc">
@@ -90,14 +133,30 @@
           word-wrap: break-word;
           overflow: hidden;"/>
         <div t-if="doc.default_code" t-out="doc.default_code if len(doc.default_code) &lt; 39 else (doc.default_code[:39] +  &quot;...&quot;)" style="margin-top:3px;font-size: 3mm';"/>
-        <t t-foreach="request.env['mrp.bom'].search([('product_tmpl_id', '=', doc.id)])" t-as="obj">
+
+        <t t-set="boms" t-value="request.env['mrp.bom'].search([('product_tmpl_id', '=', doc.id)])"/>
+        <t t-if="len(boms)>0">
+          <t t-set="bom" t-value="boms[0]"/>
+          <div style="top:80px;position:absolute; margin-left: 160px;font-size: 3mm;">
+              <span t-out="'%.0f'%(bom.product_qty)"/>
+              <span t-out="doc.uom_id.name"/>
+          </div>
+        </t>
+        <t t-else="else">
+          <div style="top:80px;position:absolute; margin-left: 160px;font-size: 3mm;">
+              <span>1</span>
+              <span t-out="doc.uom_id.name"/>
+          </div>
+        </t>
+
+        <!--t t-foreach="request.env['mrp.bom'].search([('product_tmpl_id', '=', doc.id)])" t-as="obj">
           <t t-if="obj.product_qty>0">
             <div style="top:80px;position:absolute; margin-left: 160px;font-size: 3mm;">
                 <span t-out="'%.0f'%(obj.product_qty)"/>
                 <span t-out="obj.product_uom_id.name"/>
             </div>
           </t>
-        </t>
+        </t-->
 
         <!--Fall, wenn keine BoM angehangen wurde, wurde nicht abgelehnt von Antje-->
         <!--t t-set="temp" t-value="0"/>

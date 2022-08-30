@@ -5,66 +5,122 @@
       <field name="name">SCANCODE LABEL</field>
       <field name="default" eval="True"/>
       <field name="format">custom</field>
-      <field name="page_height">62</field>
-      <field name="page_width">28</field>
+      <field name="page_height">59</field>
+      <field name="page_width">22</field>
       <field name="orientation">Landscape</field>
-      <field name="margin_top">3</field>
-      <field name="margin_bottom">3</field>
-      <field name="margin_left">1</field>
-      <field name="margin_right">1</field>
+      <field name="margin_top">0</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">0</field>
+      <field name="margin_right">0</field>
       <field name="header_line" eval="False"/>
-      <field name="header_spacing">10</field>
+      <field name="header_spacing">0</field>
       <field name="dpi">90</field>
     </record>
 
-    <record id="paperformat_bbi_seriennummer" model="report.paperformat">
-      <field name="name">SERIENNUMMER LABEL</field>
+    <record id="paperformat_bbi_stock_box_small" model="report.paperformat">
+      <field name="name">BOX LABEL</field>
       <field name="default" eval="True"/>
       <field name="format">custom</field>
-      <field name="page_height">62</field>
-      <field name="page_width">21</field>
+      <field name="page_height">59</field>
+      <field name="page_width">12</field>
       <field name="orientation">Landscape</field>
-      <field name="margin_top">3</field>
-      <field name="margin_bottom">3</field>
-      <field name="margin_left">1</field>
-      <field name="margin_right">1</field>
+      <field name="margin_top">0</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">0</field>
+      <field name="margin_right">0</field>
       <field name="header_line" eval="False"/>
-      <field name="header_spacing">10</field>
+      <field name="header_spacing">0</field>
       <field name="dpi">90</field>
     </record>
 
-    <record id="report_scancode_label_small" model="ir.actions.report">
-        <field name="name">Print bbi Barcode Label (klein)</field>
+    <record id="paperformat_bbi_screw_big" model="report.paperformat">
+      <field name="name">SCREW BIG LABEL</field>
+      <field name="default" eval="True"/>
+      <field name="format">custom</field>
+      <field name="page_height">59</field>
+      <field name="page_width">22</field>
+      <field name="orientation">Landscape</field>
+      <field name="margin_top">0</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">0</field>
+      <field name="margin_right">0</field>
+      <field name="header_line" eval="False"/>
+      <field name="header_spacing">0</field>
+      <field name="dpi">90</field>
+    </record>
+
+    <record id="paperformat_bbi_product_label_new" model="report.paperformat">
+      <field name="name">A4 Sticker</field>
+      <field name="default" eval="True"/>
+      <field name="format">custom</field>
+      <field name="page_height">59</field>
+      <field name="page_width">22</field>
+      <field name="orientation">Landscape</field>
+      <field name="margin_top">0</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">0</field>
+      <field name="margin_right">0</field>
+      <field name="header_line" eval="False"/>
+      <field name="header_spacing">0</field>
+      <field name="dpi">90</field>
+    </record>
+
+    <record id="report_scancode_label_small_action" model="ir.actions.report">
+        <field name="name">Print bbi Barcode Label (small)</field>
         <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
         <field name="model">product.template</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">bbi_mod_stock.report_barcode_label_small</field>
         <field name="report_file">bbi_mod_stock.report_barcode_label_small</field>
-        <field name="print_report_name">'bbi Barcode Label - %s - (klein)' % (object.name) </field>
+        <field name="print_report_name">'bbi Barcode Label small - %s' % (object.name) </field>
         <field name="binding_model_id" ref="model_product_template"/>
         <field name="binding_type">report</field>
     </record>
 
-    <record id="report_scancode_label_big" model="ir.actions.report">
-        <field name="name">Print bbi Barcode Label (groß)</field>
-        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
+    <record id="report_screw_label_big_action" model="ir.actions.report">
+        <field name="name">Print bbi Screw Label (big)</field>
+        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_screw_big" />
         <field name="model">product.template</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">bbi_mod_stock.report_barcode_label_big</field>
-        <field name="report_file">bbi_mod_stock.report_barcode_label_big</field>
-        <field name="print_report_name">'bbi Barcode Label - %s - (groß)' % (object.name)</field>
+        <field name="report_name">bbi_mod_stock.report_big_screw_label</field>
+        <field name="report_file">bbi_mod_stock.report_big_screw_label</field>
+        <field name="print_report_name">'bbi Screw Label big - %s' % (object.name)</field>
         <field name="binding_model_id" ref="model_product_template"/>
         <field name="binding_type">report</field>
     </record>
 
-    <record id="report_bbi_warenausgang" model="ir.actions.report">
-        <field name="name">Print Warenausgangslabel</field>
+    <record id="report_bbi_product_label_in_box_action" model="ir.actions.report">
+        <field name="name">Print bbi Product Label in box (old)</field>
         <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_barcode" />
         <field name="model">product.template</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">bbi_mod_stock.report_bbi_warenausgang1</field>
-        <field name="report_file">bbi_mod_stock.report_bbi_warenausgang1</field>
-        <field name="print_report_name">'bbi WH OUT Label - %s' % (object.name)</field>
+        <field name="report_name">bbi_mod_stock.report_bbi_product_label_old</field>
+        <field name="report_file">bbi_mod_stock.report_bbi_product_label_old</field>
+        <field name="print_report_name">'bbi Product Label in box - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_bbi_product_label_in_box_action_new" model="ir.actions.report">
+        <field name="name">Print bbi Product Label in box (new)</field>
+        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_product_label_new" />
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bbi_mod_stock.report_bbi_product_label_new</field>
+        <field name="report_file">bbi_mod_stock.report_bbi_product_label_new</field>
+        <field name="print_report_name">'bbi Product Label in box - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_bbi_product_label_front_box_action" model="ir.actions.report">
+        <field name="name">Print bbi Product Label front box</field>
+        <field name="paperformat_id" ref="bbi_mod_stock.paperformat_bbi_stock_box_small" />
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bbi_mod_stock.report_bbi_product_label_front</field>
+        <field name="report_file">bbi_mod_stock.report_bbi_product_label_front</field>
+        <field name="print_report_name">'bbi Product Label front box - %s' % (object.name)</field>
         <field name="binding_model_id" ref="model_product_template"/>
         <field name="binding_type">report</field>
     </record>
