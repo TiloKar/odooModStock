@@ -1,4 +1,17 @@
-from odoo import api, fields, models
+import logging
+from collections import defaultdict
+from datetime import datetime, time
+from dateutil import relativedelta
+from itertools import groupby
+from psycopg2 import OperationalError
+
+from odoo import SUPERUSER_ID, _, api, fields, models, registry
+from odoo.addons.stock.models.stock_rule import ProcurementException
+from odoo.exceptions import RedirectWarning, UserError, ValidationError
+from odoo.osv import expression
+from odoo.tools import add, float_compare, frozendict, split_every
+
+_logger = logging.getLogger(__name__)
 
 
 class StockWarehouseOrderpoint(models.Model):
@@ -27,31 +40,47 @@ class StockWarehouseOrderpoint(models.Model):
         all_product_ids = []
         all_warehouse_ids = []
         # Take 3 months since it's the max for the forecast report
-        to_date = add(fields.date.today(), months=3)
+        # Das bedeutet, wenn man den Forcasted Report ausgibt werden nur Produkte angezeigt, deren Bedarfmeldungen innerhalb von 3 Monaten liegen.
+        # Ein MO die heute (31.08.) eröffnet wird, wird noch angezeigt, wenn das geplannte Datum am 30.11. ist, aber verschwindet, wenn das Datum der 1.12 ist.
+        # EDIT: Hanning Liu months von 3 auf 24 gesetzt um die Leadtage zu erhöhen
+        to_date = add(fields.date.today(), months=24)
+        # report.story.quantity zeigt den forcasted reported zu allen Produkten an und ist somit eine Erweiterung zum stock.quant
         qty_by_product_warehouse = self.env['report.stock.quantity'].read_group(
             [('date', '=', to_date), ('state', '=', 'forecast')],
             ['product_id', 'product_qty', 'warehouse_id'],
             ['product_id', 'warehouse_id'], lazy=False)
+
         for group in qty_by_product_warehouse:
+            #setzt Warehouse id Stock = 1 Inventar = 2
             warehouse_id = group.get('warehouse_id') and group['warehouse_id'][0]
+            # filtert den Forecast nach Produkte mit einer Prognose unter 0
             if group['product_qty'] >= 0.0 or not warehouse_id:
                 continue
+            # alle Produkte mit einer Prognose unter 0 werden in all_product_ids abgespeichert
             all_product_ids.append(group['product_id'][0])
             all_warehouse_ids.append(warehouse_id)
+            # to refill = alle aufzufüllenden Produkte mit dem Format (73628, 1): -5.0 / nur negative Product_qty durch vorherige Abfrage
             to_refill[(group['product_id'][0], warehouse_id)] = group['product_qty']
+        # wenn keine Produkte zum auffüllen vorhanden sind bricht die Methode hier ab
         if not to_refill:
             return action
 
         # Recompute the forecasted quantity for missing product today but at this time
         # with their real lead days.
+        # Berechnung gruppiert nach leaddays
         key_to_remove = []
         pwh_per_day = defaultdict(list)
         for (product, warehouse) in to_refill.keys():
             product = self.env['product.product'].browse(product).with_prefetch(all_product_ids)
             warehouse = self.env['stock.warehouse'].browse(warehouse).with_prefetch(all_warehouse_ids)
             rules = product._get_rules_from_location(warehouse.lot_stock_id)
+            # Die Leaddays werden von den Supplierinfo entnommen
             lead_days = rules.with_context(bypass_delay_description=True)._get_lead_days(product)[0]
+            #print("Produkt: " + str(product.product_tmpl_id.name) + " Lead_days: " +str(lead_days))
+            # pwh_per_day ist ein Gruppierung der Produkte nach den Leadtagen. D.h. 10 Leadtage --> xxx, xxx, xxx PRoduct
             pwh_per_day[(lead_days, warehouse)].append(product.id)
+        print (str(pwh_per_day))
+
         # group product by lead_days and warehouse in order to read virtual_available
         # in batch
         for (days, warehouse), p_ids in pwh_per_day.items():
