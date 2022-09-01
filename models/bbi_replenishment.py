@@ -73,13 +73,20 @@ class StockWarehouseOrderpoint(models.Model):
         for (product, warehouse) in to_refill.keys():
             product = self.env['product.product'].browse(product).with_prefetch(all_product_ids)
             warehouse = self.env['stock.warehouse'].browse(warehouse).with_prefetch(all_warehouse_ids)
+            # Rules gibt die 'route_ids' und die 'warehouse_id' an
             rules = product._get_rules_from_location(warehouse.lot_stock_id)
             # Die Leaddays werden von den Supplierinfo entnommen
-            lead_days = rules.with_context(bypass_delay_description=True)._get_lead_days(product)[0]
+            lead_days = rules._get_lead_days(product)[0]
+            #lead_days = rules.with_context(bypass_delay_description=True)._get_lead_days(product)[0]
+            # EDIT Hanning Liu: Wenn keine Leaddays in der Supplierinfo eingetragen wird, wird derzeit standardmäßig eine Leadtime von 0 eingetragen
+            # Somit wird, sobald die Leaddays 0 betragen automatisch eine 365 eingetragen
+            # Das ist wichtig für die Fertigung, die lediglich einen Bedarf eintragen, aber keinen Lieferanten, wodurch eine Leadtime von 0 entsteht und somit nicht in der Auffüllung angezeigt wird.
+            if lead_days == 0:
+                lead_days = 365
             #print("Produkt: " + str(product.product_tmpl_id.name) + " Lead_days: " +str(lead_days))
             # pwh_per_day ist ein Gruppierung der Produkte nach den Leadtagen. D.h. 10 Leadtage --> xxx, xxx, xxx PRoduct
             pwh_per_day[(lead_days, warehouse)].append(product.id)
-        print (str(pwh_per_day))
+        #print (str(pwh_per_day))
 
         # group product by lead_days and warehouse in order to read virtual_available
         # in batch
@@ -89,6 +96,8 @@ class StockWarehouseOrderpoint(models.Model):
                 warehouse=warehouse.id,
                 to_date=fields.datetime.now() + relativedelta.relativedelta(days=days)
             ).read(['virtual_available'])
+
+            #print(str(qties) + " test")
             for qty in qties:
                 if float_compare(qty['virtual_available'], 0, precision_rounding=product.uom_id.rounding) >= 0:
                     key_to_remove.append((qty['id'], warehouse.id))
@@ -161,6 +170,21 @@ class StockWarehouseOrderpoint(models.Model):
                 orderpoint._set_default_route_id()
             orderpoint.qty_multiple = orderpoint._get_qty_multiple_to_order()
         return action
+
+    @api.depends('rule_ids', 'product_id.seller_ids', 'product_id.seller_ids.delay')
+    def _compute_lead_days(self):
+        for orderpoint in self.with_context(bypass_delay_description=True):
+            if not orderpoint.product_id or not orderpoint.location_id:
+                orderpoint.lead_days_date = False
+                continue
+            values = orderpoint._get_lead_days_values()
+            lead_days, dummy = orderpoint.rule_ids._get_lead_days(orderpoint.product_id, **values)
+            # EDIT Hanning Liu: hier musste auch der Default auf 365 Tage gesetzt werden, damit es in der Auffüllung wirksam ist.
+            if lead_days == 0:
+                lead_days = 365.0
+            print(str(lead_days))
+            lead_days_date = fields.Date.today() + relativedelta.relativedelta(days=lead_days)
+            orderpoint.lead_days_date = lead_days_date
 
     @api.autovacuum
     def _unlink_processed_orderpoints(self):
