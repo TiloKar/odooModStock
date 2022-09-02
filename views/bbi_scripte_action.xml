@@ -78,7 +78,9 @@
               <button name="fixingPickingLocation" type="object" string="Update des Lagerziels auf WH/Stock" class="oe_highlight"/>
               <br/>
               <br/>
-
+              <button name="deleteSupInfoDuplicates" type="object" string="hole lead times" class="oe_highlight"/>
+              <br/>
+              <br/>
             </p>
 
           </group>

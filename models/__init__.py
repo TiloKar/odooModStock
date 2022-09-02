@@ -33,3 +33,4 @@ from .tagx import repair_quants_location
 from .tagx import repair_A_stock_moves
 from .tagx import kaufmann_prices
 from .tagx import fix_picking_location
+from .tagx import supplierinfo_leadtime
