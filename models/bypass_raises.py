@@ -281,6 +281,59 @@ class ProductTemplate(models.Model):
 
         #weitergabe an ursprüngliche write
         # hier super call verändert auf models.Model, damit nicht die alte methode nochmal aufgerufen wird
+
+        # Protokollfunktion für die Chatterbox
+        product=self.env['product.template'].search([('id','=',self.id)])
+        translation = self.env['ir.translation'].search([('src', '=', self.name)])
+
+        for t in translation:
+            if t.src == t.value:
+                original = t.id
+            else:
+                translated = t.id
+
+        print("Original: {} und Übersetzt: {}.".format(original, translated))
+        if (len(product) == 1):
+            if ('default_code' in vals.keys()) and (self.default_code) :
+                if self.default_code != vals['default_code']:
+                    myMessage='bbi Scanncode changed from {} to {}.'.format(self.default_code,vals['default_code'])
+                    product.message_post(body=myMessage)
+            if ('name' in vals.keys()) and (self.name) :
+                if self.name != vals['name']:
+                    myMessage='Product Name changed from {} to {}.'.format(self.name,vals['name'])
+                    product.message_post(body=myMessage)
+            if ('bbiDrawingNb' in vals.keys()) and (self.bbiDrawingNb) :
+                if self.bbiDrawingNb != vals['bbiDrawingNb']:
+                    myMessage='bbi Drawing Number changed from {} to {}.'.format(self.bbiDrawingNb,vals['bbiDrawingNb'])
+                    product.message_post(body=myMessage)
+            if ('detailed_type' in vals.keys()) and (self.detailed_type) :
+                if self.detailed_type != vals['detailed_type']:
+                    myMessage='Pruduct Type changed from {} to {}.'.format(self.detailed_type,vals['detailed_type'])
+                    product.message_post(body=myMessage)
+            if ('hs_code' in vals.keys()) and (self.hs_code) :
+                if self.hs_code != vals['hs_code']:
+                    myMessage='HS-Code changed from {} to {}.'.format(self.hs_code,vals['hs_code'])
+                    product.message_post(body=myMessage)
+            if ('uom_id' in vals.keys()) and (self.uom_id) :
+                if self.uom_id != vals['uom_id']:
+                    myMessage='Unit of Measure changed from {} to {}.'.format(self.uom_id,vals['uom_id'])
+                    product.message_post(body=myMessage)
+            if ('uom_po_id' in vals.keys()) and (self.uom_po_id) :
+                if self.uom_po_id != vals['uom_po_id']:
+                    myMessage='Purchase UoM changed from {} to {}.'.format(self.uom_po_id,vals['uom_po_id'])
+                    product.message_post(body=myMessage)
+            if ('list_price' in vals.keys()) and (self.list_price) :
+                if self.list_price != vals['list_price']:
+                    myMessage='Sales Price changed from {} to {}.'.format(self.list_price,vals['list_price'])
+                    product.message_post(body=myMessage)
+            if ('roterPunkt_qty' in vals.keys()) and (self.roterPunkt_qty) :
+                if self.roterPunkt_qty != vals['roterPunkt_qty']:
+                    myMessage='Nachbestellen changed from {} to {}.'.format(self.roterPunkt_qty,vals['roterPunkt_qty'])
+                    product.message_post(body=myMessage)
+            if ('list_price' in vals.keys()) and (self.list_price) :
+                if self.roterPunkt_id != vals['roterPunkt_id']:
+                    myMessage='Roter Punkt - Wer changed from {} to {}.'.format(self.roterPunkt_id,vals['roterPunkt_id'])
+                    product.message_post(body=myMessage)
         return super(models.Model,self).write(vals)
 
 class UoM(models.Model):

@@ -81,8 +81,8 @@ class StockWarehouseOrderpoint(models.Model):
             # EDIT Hanning Liu: Wenn keine Leaddays in der Supplierinfo eingetragen wird, wird derzeit standardmäßig eine Leadtime von 0 eingetragen
             # Somit wird, sobald die Leaddays 0 betragen automatisch eine 365 eingetragen
             # Das ist wichtig für die Fertigung, die lediglich einen Bedarf eintragen, aber keinen Lieferanten, wodurch eine Leadtime von 0 entsteht und somit nicht in der Auffüllung angezeigt wird.
-            if lead_days == 0:
-                lead_days = 365
+            #if lead_days == 0:
+            #    lead_days = 365
             #print("Produkt: " + str(product.product_tmpl_id.name) + " Lead_days: " +str(lead_days))
             # pwh_per_day ist ein Gruppierung der Produkte nach den Leadtagen. D.h. 10 Leadtage --> xxx, xxx, xxx PRoduct
             pwh_per_day[(lead_days, warehouse)].append(product.id)
@@ -173,6 +173,7 @@ class StockWarehouseOrderpoint(models.Model):
 
     @api.depends('rule_ids', 'product_id.seller_ids', 'product_id.seller_ids.delay')
     def _compute_lead_days(self):
+        counter = 0
         for orderpoint in self.with_context(bypass_delay_description=True):
             if not orderpoint.product_id or not orderpoint.location_id:
                 orderpoint.lead_days_date = False
@@ -180,9 +181,11 @@ class StockWarehouseOrderpoint(models.Model):
             values = orderpoint._get_lead_days_values()
             lead_days, dummy = orderpoint.rule_ids._get_lead_days(orderpoint.product_id, **values)
             # EDIT Hanning Liu: hier musste auch der Default auf 365 Tage gesetzt werden, damit es in der Auffüllung wirksam ist.
-            if lead_days == 0:
-                lead_days = 365.0
-            print(str(lead_days))
+            #if lead_days == 0:
+            #    lead_days = 365.0
+
+            counter = counter +1
+            print("NR: " + str(counter) + " | " + str(lead_days))
             lead_days_date = fields.Date.today() + relativedelta.relativedelta(days=lead_days)
             orderpoint.lead_days_date = lead_days_date
 
