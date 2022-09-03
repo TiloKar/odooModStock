@@ -78,7 +78,13 @@
               <button name="fixingPickingLocation" type="object" string="Update des Lagerziels auf WH/Stock" class="oe_highlight"/>
               <br/>
               <br/>
-              <button name="deleteSupInfoDuplicates" type="object" string="hole lead times" class="oe_highlight"/>
+              <button name="deleteSupInfoDuplicates" type="object" string="delete SupInfo Duplicates" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="getLeadTimes" type="object" string="report lead times" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="setLeadTimes" type="object" string="set lead times to 365" class="oe_highlight"/>
               <br/>
               <br/>
             </p>
