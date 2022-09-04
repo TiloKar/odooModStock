@@ -87,6 +87,12 @@
               <button name="setLeadTimes" type="object" string="set lead times to 365" class="oe_highlight"/>
               <br/>
               <br/>
+              <button name="getExtInventoryReport" type="object" string="report terminal file" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="setExtInventory" type="object" string="set external quantities" class="oe_highlight"/>
+              <br/>
+              <br/>
             </p>
 
           </group>

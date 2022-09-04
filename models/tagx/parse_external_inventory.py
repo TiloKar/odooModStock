@@ -14,16 +14,25 @@ class BbiScripte(models.Model):
     #mit inventory_quatity_set = true die zählung auf NICHT angewendet setzen
     #bei inventory_quantity zielwert raufschreiben und bei inventory_diff_quantity=neu - quantity und dann quant.action_apply_inventory()
 
-    wenn dort location_id = 9
+    def moveLineIsIn(self,m):
+        if not m.picking_id: return False
+        if 'WH/IN' in m.picking_id.name: return True
+        return False
+
     def compQuantsInv(self,p,rowCode):
         if not p.default_code: return False
         if rowCode.lower() == str(p.default_code).lower(): return True
         return False
 
-    def parseExtInventoryGetInputs(self,checkDate):
+    def getExtInventoryReport(self):
         #parsen der liste und rückgabe welche teile davon seit checkDate in wh/stock eingeflogen sind
+        self.parseExtInventory(False)
 
-    def parseExtInventory(self):
+    def setExtInventory(self):
+        #parsen der liste und rückgabe welche teile davon seit checkDate in wh/stock eingeflogen sind
+        self.parseExtInventory(True)
+
+    def parseExtInventory(self,makeCorrection):
         try:
             raw = base64.decodestring(self.myFile) #vorbereitung binary
         except:
@@ -33,12 +42,12 @@ class BbiScripte(models.Model):
         except:
             raise ValidationError('Datei Fehler!')
 
-        if sheet.nrows < 2: raise ValidationError('Datei Fehler!')
+        if book.nsheets < 2: raise ValidationError('Datei Fehler!')
         notFound = []
         rotePunkteOdoo = []
         #stumpfe übernahme ohne 1905 betrachtung
         productsToSet = [] # wird ein array mit den anzuhängenden dictionaries
-        sheet = book.sheets()[0]
+        sheet = book.sheets()[1]
 
         for i in range(sheet.nrows):
             if i < 1:
@@ -82,15 +91,16 @@ class BbiScripte(models.Model):
 
         #ende for über alle zeilen im blatt lagerliste
 
-        #ab hier MO für bestand
         i=0
         n=len(productsToSet)
+        idsToSet = []
         productsInTracking = [] # wird ein array mit den produkten in chargen oder seriennummernverfolgung
         for p in productsToSet:
             i+=1
             print("checking quant {} from {}".format(i,n))
-            product = self.env['product.product'].search([('id','=',d['product_id'])])
+            product = self.env['product.product'].search([('id','=',p['product_id'])])
             toSet = p['qty_to_set']
+            idsToSet.append(product.id)
             if product.tracking != 'none':
                 productsInTracking.append({'product_id': product.id,
                     'name': product.name,
@@ -98,23 +108,27 @@ class BbiScripte(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'default_code' : product.default_code
                 })
-            else: #nur produkte ohne serien/chargenverfolgung behandeln
+            elif (makeCorrection == True): #nur produkte ohne serien/chargenverfolgung behandeln
                 quant = self.env['stock.quant'].search([('product_id','=',product.id),('location_id','=',8)])
                 if len(quant) == 1:
+                    print('schon da {}'.format(product.default_code))
                     #bei inventory_quantity zielwert raufschreiben und bei inventory_diff_quantity=neu - quantity und dann quant.action_apply_inventory()
                     quant.update({
-                        'inventory_quatity_set': True,
                         'inventory_quantity': toSet,
                         'inventory_diff_quantity' : toSet - quant.quantity,
                     })
-                    newQuant.action_apply_inventory()
+                    quant.action_apply_inventory()
                 else:
+                    print('update {}'.format(product.default_code))
                     newQuant = self.env['stock.quant'].create({
                         'product_id': product.id,
                         'location_id': 8,
                         'inventory_quantity': toSet,
                     })
                     newQuant.action_apply_inventory()
+
+        #hier noch prüfen, ob dazu wareneingänge existieren
+        moveLines = self.env['stock.move.line'].search([('location_dest_id','=',8),('state','=','done'),('product_id','in',idsToSet)]).filtered(lambda m: self.moveLineIsIn(m))
 
         ausgabe = 'Anzahl;code;name\nto create:\n'
         if len(productsToSet) > 0 :
@@ -132,6 +146,10 @@ class BbiScripte(models.Model):
             ausgabe += '!!! nicht übernommen wegen Tracking im odoo:\n'
             for d in productsInTracking:
                 ausgabe+= "{};{};{}\n".format('na',d['default_code'],d['name'].replace(';','|'))
+        if (moveLines):
+            ausgabe += '!!! wareneingänge:\n'
+            for d in moveLines:
+                ausgabe+= "{};{};{}\n".format('na',d.product_id.default_code,d.product_id.name.replace(';','|'))
 
         raw = ausgabe.encode(encoding='cp1252', errors='replace') # String encoden
         self.myFile = base64.b64encode(raw) # binärcode mit b64 encoden
