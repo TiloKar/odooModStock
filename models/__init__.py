@@ -12,6 +12,8 @@ from . import bbi_history
 from . import stock_move_line
 from . import bbi_replenishment
 from . import bbi_report_stock_quantity
+from . import supplierinfo_log
+from . import quant_log
 
 
 from . import stock_orderpoint
