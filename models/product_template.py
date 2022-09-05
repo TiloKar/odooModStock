@@ -199,6 +199,8 @@ class ProductTemplate(models.Model):
         if self.name:
             translation = self.env['ir.translation'].search([('src', '=', self.name)])
             if len(translation) == 1:
+                original = " "
+                translated = " "
                 if translation.src == translation.value:
                     original = translation.id
                 else:
