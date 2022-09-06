@@ -246,7 +246,7 @@ class ProductTemplate(models.Model):
                 if self.roterPunkt_qty != vals['roterPunkt_qty']:
                     myMessage='Nachbestellen changed from {} to {}.'.format(self.roterPunkt_qty,vals['roterPunkt_qty'])
                     product.message_post(body=myMessage)
-            if ('list_price' in vals.keys()) and (self.list_price) :
+            if ('roterPunkt_id' in vals.keys()) and (self.roterPunkt_id) :
                 if self.roterPunkt_id != vals['roterPunkt_id']:
                     myMessage='Roter Punkt - Wer changed from {} to {}.'.format(self.roterPunkt_id,vals['roterPunkt_id'])
                     product.message_post(body=myMessage)
