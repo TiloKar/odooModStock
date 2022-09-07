@@ -54,12 +54,13 @@ class MrpProduction(models.Model):
 
     #sorgt dafür, dass produktverantwortlicher als mo verantwortlicher eingetragen wird
     def create(self, vals):
-        if (vals[0]['product_id']) :
-            product = self.env['product.product'].search([('id','=',vals[0]['product_id'])])
-            if len(product) == 1:
-                if (product.product_tmpl_id.responsible_id):
-                    #print('\n#\n#\n#\n#')
-                    #print(product.product_tmpl_id.responsible_id)
-                    vals[0]['user_id'] = product.product_tmpl_id.responsible_id.id
+        for v in vals:
+            if (v['product_id']) :
+                product = self.env['product.product'].search([('id','=',v['product_id'])])
+                if len(product) == 1:
+                    if (product.product_tmpl_id.responsible_id):
+                        #print('\n#\n#\n#\n#')
+                        #print(product.product_tmpl_id.responsible_id)
+                        v['user_id'] = product.product_tmpl_id.responsible_id.id
 
         return super(MrpProduction, self).create(vals)
