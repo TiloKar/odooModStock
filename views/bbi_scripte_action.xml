@@ -93,7 +93,7 @@
               <button name="setExtInventory" type="object" string="set external quantities" class="oe_highlight"/>
               <br/>
               <br/>
-              <button name="parseExcelData" type="object" string="B und R Bestellungen übernahme" class="oe_highlight"/>
+              <button name="parseBRpo" type="object" string="B und R Bestellungen übernahme" class="oe_highlight"/>
               <br/>
               <br/>
             </p>
