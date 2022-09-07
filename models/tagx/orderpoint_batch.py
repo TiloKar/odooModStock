@@ -38,7 +38,7 @@ class BbiScripte(models.Model):
                 valsO['route_id'] = 5
                 routeManu = p.route_ids.filtered(lambda r: r.id == 5)
                 if len(routeManu) == 0:
-                    p.write({'route_ids': [(4, 5)] })# ist der operstortyp für add, die 5 ist die id des co-modells zum ergänzen
+                    p.write({'route_ids': [(4, 5)] })# 4 ist der operatortyp für add, die 5 ist die id des co-modells zum ergänzen
                 rout5+=1
 
             if hasSupplier: #trägt sup_info und partner_id ein
@@ -49,7 +49,7 @@ class BbiScripte(models.Model):
                 valsO['vendor_id'] = supplier[0].name.id
                 routeBuy = p.route_ids.filtered(lambda r: r.id == 7)
                 if len(routeBuy) == 0:
-                    p.write({'route_ids': [(4, 7)] })# ist der operstortyp für add, die 5 ist die id des co-modells zum ergänzen
+                    p.write({'route_ids': [(4, 7)] })# 4 ist der operatortyp für add, die 7 ist die id des co-modells zum ergänzen
                 rout7+=1
 
             if hasBbiNr:
