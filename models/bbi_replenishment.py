@@ -173,7 +173,6 @@ class StockWarehouseOrderpoint(models.Model):
 
     @api.depends('rule_ids', 'product_id.seller_ids', 'product_id.seller_ids.delay')
     def _compute_lead_days(self):
-        counter = 0
         for orderpoint in self.with_context(bypass_delay_description=True):
             if not orderpoint.product_id or not orderpoint.location_id:
                 orderpoint.lead_days_date = False
@@ -183,9 +182,6 @@ class StockWarehouseOrderpoint(models.Model):
             # EDIT Hanning Liu: hier musste auch der Default auf 365 Tage gesetzt werden, damit es in der Auffüllung wirksam ist.
             #if lead_days == 0:
             #    lead_days = 365.0
-
-            counter = counter +1
-            print("NR: " + str(counter) + " | " + str(lead_days))
             lead_days_date = fields.Date.today() + relativedelta.relativedelta(days=lead_days)
             orderpoint.lead_days_date = lead_days_date
 
