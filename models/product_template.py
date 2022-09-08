@@ -55,6 +55,10 @@ class ProductTemplate(models.Model):
         store=True,
         )
 
+    #responsible_id = fields.Many2one(
+    #    'res.users', string='Responsible', default=lambda self: self.env.uid, company_dependent=True, store=True, check_company=True,
+    #    help="This user will be responsible of the next activities related to logistic operations for this product.")
+
     # Die dazugehörige Protokollhistorie ist in bypass_raises.py zu finden
     protokoll_ids = fields.One2many('bbi.history', 'product_tmpl_id', readonly=True)
 
@@ -232,11 +236,13 @@ class ProductTemplate(models.Model):
                     product.message_post(body=myMessage)
             if ('uom_id' in vals.keys()) and (self.uom_id) :
                 if self.uom_id != vals['uom_id']:
-                    myMessage='Unit of Measure changed from {} to {}.'.format(self.uom_id,vals['uom_id'])
+                    search_uom = self.env['uom.uom'].search([('id', '=', vals['uom_id'])])
+                    myMessage='Unit of Measure changed from {} to {}.'.format(self.uom_id.name,search_uom.name)
                     product.message_post(body=myMessage)
             if ('uom_po_id' in vals.keys()) and (self.uom_po_id) :
                 if self.uom_po_id != vals['uom_po_id']:
-                    myMessage='Purchase UoM changed from {} to {}.'.format(self.uom_po_id,vals['uom_po_id'])
+                    search_uom = self.env['uom.uom'].search([('id', '=', vals['uom_po_id'])])
+                    myMessage='Purchase UoM changed from {} to {}.'.format(self.uom_po_id.name,search_uom.name)
                     product.message_post(body=myMessage)
             if ('list_price' in vals.keys()) and (self.list_price) :
                 if self.list_price != vals['list_price']:

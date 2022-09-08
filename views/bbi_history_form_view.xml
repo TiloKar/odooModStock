@@ -6,7 +6,7 @@
   <field name="arch" type="xml">
     <form string="bbi ">
       <group>
-        <h2>Zustand vor Aenderung:</h2>
+        <h2>Zustand vor Änderung:</h2>
         <field name="name"/>
         <field name="write_uid" widget="many2one_avatar_user" string="Bearbeiter"/>
         <field name="write_date" string="Bearbeitungsdatum"/>
