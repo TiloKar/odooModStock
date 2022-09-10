@@ -38,3 +38,5 @@ from .tagx import fix_picking_location
 from .tagx import supplierinfo_leadtime
 from .tagx import parse_external_inventory
 from .tagx import b_und_r_bestellungen_uebernahme
+from .tagx import revertQMmoves
+from .tagx import parse_backup_inventory

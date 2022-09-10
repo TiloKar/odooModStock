@@ -96,6 +96,19 @@
               <button name="parseBRpo" type="object" string="B und R Bestellungen übernahme" class="oe_highlight"/>
               <br/>
               <br/>
+              <button name="getProductQuantities" type="object" string="gebe aktuelles inventar aus" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="changeBadInputPickings" type="object" string="repariere WH/input zugänge" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="changeBadOutputPickings" type="object" string="repariere WH/input abgänge" class="oe_highlight"/>
+              <br/>
+              <br/>
+              <button name="parseBackupInventory" type="object" string="korrigiere aktuelles inventar nach datei" class="oe_highlight"/>
+              <br/>
+              <br/>
+
             </p>
 
           </group>
