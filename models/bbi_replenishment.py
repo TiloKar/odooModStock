@@ -396,8 +396,11 @@ class StockWarehouseOrderpoint(models.Model):
             ['product_id', 'product_qty', 'warehouse_id'],
             ['product_id', 'warehouse_id'], lazy=False)
 
-        print(len(qty_by_product_warehouse))
-        print(qty_by_product_warehouse[0])
+        #print(len(qty_by_product_warehouse))
+        #print(qty_by_product_warehouse[0])
+        print(len(allStorablesWHStock = self.env['product.product'].with_context(location=8).search([('detailed_type','=','product')])))
+        print(len(allStorablesINVStock = self.env['product.product'].with_context(location=21).search([('detailed_type','=','product')])))
+
         return
 
         for item in qty_by_product_warehouse:
@@ -414,14 +417,15 @@ class StockWarehouseOrderpoint(models.Model):
                 #warehouse 2 zugänge, location_dest_id = 21 group by product_id sum(qty)
                 #warehouse 2 abgänge, location_id = 21 group by product_id sum(qty)
                 #dif ist menge zum füllen
-        allStorablesWHIn = self.env['product.product'].with_context(active_test=False).search([('detailed_type','=','product')])
 
-        for p in allStorables:
 
-            if p.virtual_available < 0.0:
+
+        for group in qty_by_product_warehouse:
+
+        #    if p.virtual_available < 0.0:
 
             #setzt Warehouse id Stock = 1 Inventar = 2
-                if p.warehouse_id
+            #    if p.warehouse_id
             warehouse_id = group.get('warehouse_id') and group['warehouse_id'][0]
             # filtert den Forecast nach Produkte mit einer Prognose unter 0
             if group['product_qty'] >= 0.0 or not warehouse_id:
