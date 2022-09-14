@@ -173,7 +173,6 @@ GROUP BY product_id, product_tmpl_id, state, date, company_id, warehouse_id
 class StockWarehouseOrderpoint(models.Model):
     _inherit = "stock.warehouse.orderpoint"
 
-    # Hilfsmethode existiert um am jeden Ausgang der Methode _get_orderpoint_action() zusätzlich noch die gespeicherten Supplier- und Vendorinformationen einzufügen
     def restore_orderpoint_info(self,supInfos):
         action = self.env["ir.actions.actions"]._for_xml_id("stock.action_orderpoint_replenish")
         action['context'] = self.env.context
@@ -181,6 +180,7 @@ class StockWarehouseOrderpoint(models.Model):
         print("Marker 11")
         for op in orderpoints:
             for item in supInfos:
+                #print(op.product_id.id)
                 if op.product_id.id == item['product_id']:
                     op.supplier_id = item['supplier_id']
                     op.vendor_id = item['vendor_id']
@@ -202,30 +202,22 @@ class StockWarehouseOrderpoint(models.Model):
         # It means that when there will be a archived orderpoint on a location + product, the replenishment
         # report won't take in account this location + product and it won't create any manual orderpoint
         # In master: the active field should be remove
-
-        # Alle löschen, die manuell zu bestellen sind, ein Schlummerdatum eingestellt haben bzw. das Schlummerdatum nicht heute ist.
-        #to_delete = self.env['stock.warehouse.orderpoint'].search(['&', ('trigger','=','manual'),  '|', ('snoozed_until','=',False), ('snoozed_until','=', fields.date.today())])
+        #todo snoozed behandeln ???
         to_delete = self.env['stock.warehouse.orderpoint'].search([('trigger','=','manual')])
         std_supplier = []
 
-
-
         #workaroud löschen aller orderpoints und apspeichern der supinfo
         print("Marker 1")
-        for op in to_delete:
-            if (op.qty_forecast * (-1)) == op.qty_to_order:
-                to_delete = to_delete - op
-                continue
-            print("hier")
-            if op.supplier_id:
-                std_supplier.append({'supplier_id':op.supplier_id.id,'product_id':op.product_id.id,'vendor_id':op.vendor_id.id,})
-        print(to_delete.product_id.product_tmpl_id.name)
-        to_delete.unlink()
+        #for op in to_delete:
+            #print(op)
+        #    if op.supplier_id:
+        #        std_supplier.append({'supplier_id':op.supplier_id.id,'product_id':op.product_id.id,'vendor_id':op.vendor_id.id,})
+        #    op.unlink()
         orderpoints = self.env['stock.warehouse.orderpoint'].with_context(active_test=False).search([])
         print("Marker 2")
         # Remove previous automatically created orderpoint that has been refilled.
         orderpoints_removed = orderpoints._unlink_processed_orderpoints()
-        orderpoints = orderpoints - orderpoints_removed - to_delete
+        orderpoints = orderpoints - orderpoints_removed #- to_delete
         to_refill = defaultdict(float)
         all_product_ids = []
         all_warehouse_ids = []
@@ -256,6 +248,7 @@ class StockWarehouseOrderpoint(models.Model):
             all_warehouse_ids.append(warehouse_id)
             # to refill = alle aufzufüllenden Produkte mit dem Format (73628, 1): -5.0 / nur negative Product_qty durch vorherige Abfrage
             to_refill[(group['product_id'][0], warehouse_id)] = group['product_qty']
+            #print(to_refill)
         # wenn keine Produkte zum auffüllen vorhanden sind bricht die Methode hier ab
         print("Marker 4")
 
@@ -300,6 +293,7 @@ class StockWarehouseOrderpoint(models.Model):
                 #to_date=fields.datetime.now() + relativedelta.relativedelta(days=days)
                 to_date=fields.datetime.now() + relativedelta.relativedelta(days=1460) # Mod TK: hier statisch alle zugänge über 4 jahre verrechnen
             ).read(['virtual_available'])
+
 
             for qty in qties:
                 if float_compare(qty['virtual_available'], 0, precision_rounding=product.uom_id.rounding) >= 0:
@@ -389,24 +383,52 @@ class StockWarehouseOrderpoint(models.Model):
             lead_days_date = fields.Date.today() + relativedelta.relativedelta(days=1460) #EDIT HNN
             orderpoint.lead_days_date = lead_days_date
 
-    @api.depends('qty_multiple', 'qty_forecast', 'product_min_qty', 'product_max_qty')
-    def _compute_qty_to_order(self):
+    @api.depends('product_id', 'location_id', 'product_id.stock_move_ids', 'product_id.stock_move_ids.state',
+                 'product_id.stock_move_ids.date', 'product_id.stock_move_ids.product_uom_qty')
+    def _compute_qty(self):
+        orderpoints_contexts = defaultdict(lambda: self.env['stock.warehouse.orderpoint'])
         for orderpoint in self:
             if not orderpoint.product_id or not orderpoint.location_id:
-                orderpoint.qty_to_order = False
+                orderpoint.qty_on_hand = False
+                orderpoint.qty_forecast = False
                 continue
-            qty_to_order = 0.0
-            rounding = orderpoint.product_uom.rounding
-            if float_compare(orderpoint.qty_forecast, orderpoint.product_min_qty, precision_rounding=rounding) < 0:
-                qty_to_order = max(orderpoint.product_min_qty, orderpoint.product_max_qty) - orderpoint.qty_forecast
+            # Hier wird standardmäßig die location und die Zeit geholt (in unserem Fall 4 Jahre)
+            orderpoint_context = orderpoint._get_product_context()
 
-                remainder = orderpoint.qty_multiple > 0 and qty_to_order % orderpoint.qty_multiple or 0.0
-                if float_compare(remainder, 0.0, precision_rounding=rounding) > 0:
-                    qty_to_order += orderpoint.qty_multiple - remainder
-            orderpoint.qty_to_order = qty_to_order
-            #print ("Orderprodukt: ")
-            #print (orderpoint.product_id.product_tmpl_id.name)
-            #print ("Ordermenge: ")
-            #print (orderpoint.qty_forecast)
-            #print ("Qty_to_order: ")
-            #print (orderpoint.qty_to_order)
+            # Hier werden Location und Zeit an die eigenen Informatioen??? gehängt
+            # {'lang': 'en_US', 'tz': 'Europe/Berlin', 'uid': 29, 'allowed_company_ids': [1],
+            # 'mail_notify_force_send': False, 'search_default_trigger': 'manual', 'search_default_filter_to_reorder': True,
+            # 'search_default_filter_not_snoozed': True, 'default_trigger': 'manual', 'bin_size': True, 'location': 8,
+            # 'to_date': datetime.datetime(2026, 9, 13, 23, 59, 59, 999999)}
+            product_context = frozendict({**self.env.context, **orderpoint_context})
+
+            # Die eigenen User Informationen werden mit der Location und der Zeit an die Orderpoint gehangen
+            # orderpoint_context != orderpoints_contexts
+            # Datensätzen werden von den stock_moves bestimmt
+            orderpoints_contexts[product_context] |= orderpoint
+            #print('#')
+            #print(orderpoints_contexts)
+
+        for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
+            #print('#')
+            #print(orderpoint_context)
+            print(orderpoints_by_context)
+            products_qty = {
+                p['id']: p for p in orderpoints_by_context.product_id.with_context(orderpoint_context).read(['qty_available', 'virtual_available'])
+            }
+            print('#')
+            print(products_qty)
+            products_qty_in_progress = orderpoints_by_context._quantity_in_progress()
+            #print('#')
+            #print(products_qty_in_progress)
+            for orderpoint in orderpoints_by_context:
+                orderpoint.qty_on_hand = products_qty[orderpoint.product_id.id]['qty_available']
+                orderpoint.qty_forecast = products_qty[orderpoint.product_id.id]['virtual_available'] #+ products_qty_in_progress[orderpoint.id]
+
+    def _get_product_context(self):
+        """Used to call `virtual_available` when running an orderpoint."""
+        self.ensure_one()
+        return {
+            'location': self.location_id.id,
+            #'to_date': datetime.combine(self.lead_days_date, time.max)
+        }
