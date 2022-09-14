@@ -29,7 +29,7 @@ class BbiReportStockQuantity(models.Model):
         ('out', 'Forecasted Deliveries'),
     ], string='State', readonly=True)
     product_qty = fields.Float(string='Quantity', readonly=True)
-    move_ids = fields.One2many('stock.move', readonly=True)
+    move_ids = fields.One2many('stock.move', readonly=True) #wird nicht benutzt
     company_id = fields.Many2one('res.company', readonly=True)
     warehouse_id = fields.Many2one('stock.warehouse', readonly=True)
 
@@ -125,8 +125,8 @@ FROM (SELECT
         q.company_id,
         wh.id as warehouse_id
     FROM
-        GENERATE_SERIES((now() at time zone 'utc')::date - interval '24month',
-        (now() at time zone 'utc')::date + interval '24 month', '1 day'::interval) date,
+        GENERATE_SERIES((now() at time zone 'utc')::date - interval '3month',
+        (now() at time zone 'utc')::date + interval '3 month', '1 day'::interval) date,
         stock_quant q
     LEFT JOIN stock_location l on (l.id=q.location_id)
     LEFT JOIN stock_warehouse wh ON l.parent_path like concat('%/', wh.view_location_id, '/%')
@@ -142,11 +142,11 @@ FROM (SELECT
         'forecast' as state,
         GENERATE_SERIES(
         CASE
-            WHEN m.state = 'done' THEN (now() at time zone 'utc')::date - interval '24month'
+            WHEN m.state = 'done' THEN (now() at time zone 'utc')::date - interval '3month'
             ELSE m.date::date
         END,
         CASE
-            WHEN m.state != 'done' THEN (now() at time zone 'utc')::date + interval '24 month'
+            WHEN m.state != 'done' THEN (now() at time zone 'utc')::date + interval '3 month'
             ELSE m.date::date - interval '1 day'
         END, '1 day'::interval)::date date,
         CASE
@@ -228,17 +228,35 @@ class StockWarehouseOrderpoint(models.Model):
         to_date = add(fields.date.today(), months=24)
         # report.story.quantity zeigt den forcasted reported zu allen Produkten an und ist somit eine Erweiterung zum stock.quant
 
+
+        #das Grundproblem ist, der forecast ist keine abfrage relaer werte zundern eine geschätzte menge
+
+
+
         qty_by_product_warehouse = self.env['bbi.report.stock.quantity'].read_group(
             #edited tk: auch hier den filter auf date komplett entfernt
             [('state', '=', 'forecast')],
             ['product_id', 'product_qty', 'warehouse_id'],
             ['product_id', 'warehouse_id'], lazy=False)
 
+        print(len(qty_by_product_warehouse))
+        print(qty_by_product_warehouse[0])
+        return
+
         for item in qty_by_product_warehouse:
             if item['product_id'][0] == 77776:
-                print(item['product_id'])
-                print(item['product_qty'])
+                print('\n#\n#\n#\n1')
+                print(item)
 
+                #todo 2 eigene sql abfragen WH/Stock
+                #warehouse 1 zugänge, location_dest_id = 8 group by product_id sum(qty)
+                #warehouse 1 abgänge, location_id = 8 group by product_id sum(qty)
+                #dif ist menge zum füllen
+
+                #WH/INV
+                #warehouse 2 zugänge, location_dest_id = 21 group by product_id sum(qty)
+                #warehouse 2 abgänge, location_id = 21 group by product_id sum(qty)
+                #dif ist menge zum füllen
 
 
         for group in qty_by_product_warehouse:
