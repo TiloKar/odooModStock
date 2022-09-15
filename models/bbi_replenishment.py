@@ -65,6 +65,16 @@ class StockWarehouseOrderpoint(models.Model):
 
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
+        query = """ SELECT product_id,SUM(product_qty) qty
+                    FROM stock_move
+                    WHERE location_dest_id = 8 AND state not in
+                    GROUP BY picking_id
+                    ORDER BY picking_id"""
+        self.env.cr.execute(query)
+        allInputPickings=self.env.cr.fetchall()
+
+
+
         for p in allStorables:
             qty_INV = p.with_context({'location' : 21}).virtual_available
             if qty_INV < 0.0:
