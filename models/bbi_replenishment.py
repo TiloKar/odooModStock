@@ -49,6 +49,7 @@ class StockWarehouseOrderpoint(models.Model):
 
 
 
+
         #eigentliche Rückgabe zum Aufbau im Frontend, wird durch manipulation auf variable orderpoints im laufeder methode verändert
         action = self.env["ir.actions.actions"]._for_xml_id("stock.action_orderpoint_replenish")
         action['context'] = self.env.context
@@ -66,27 +67,70 @@ class StockWarehouseOrderpoint(models.Model):
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
         query = """
-SELECT product_id, SUM(qty) AS qty_progress FROM
-    SELECT product_id,SUM(product_qty) AS qty
-        FROM stock_move
-        WHERE location_dest_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union.qty_order) FROM (
+    SELECT WH_qty_progress.product_id, SUM(WH_qty_progress.qty) as qty_progress, 0 as qty_order FROM (
+        SELECT product_id,SUM(product_qty) as qty
+            FROM stock_move
+            WHERE location_dest_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+            GROUP BY product_id
+        UNION ALL
+        SELECT product_id,-SUM(product_qty) as qty
+            FROM stock_move
+            WHERE location_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+            GROUP BY product_id
+        ) as WH_qty_progress
         GROUP BY product_id
     UNION ALL
-    SELECT product_id,-SUM(product_qty) AS qty
-        FROM stock_move
-        WHERE location_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+    SELECT WH_qty_order.product_id, 0 as qty_progress, SUM(WH_qty_order.qty) as qty_order FROM (
+        SELECT purchase_order_line.product_id,purchase_order_line.product_qty as qty, purchase_order.picking_type_id
+            FROM purchase_order_line
+            INNER JOIN purchase_order ON (purchase_order.id = purchase_order_line.order_id)
+                and (purchase_order_line.display_type IS NULL)
+                and purchase_order_line.state IN ('draft', 'sent')
+            ) as WH_qty_order
         GROUP BY product_id
-    WHERE qty_progress != 0
+    )as WH_qty_union
     GROUP BY product_id
 
 
-                """
+        """
+
         self.env.cr.execute(query)
-        moves_in_progress=self.env.cr.fetchall()
-        print(moves_in_progress)
+        forecastet=self.env.cr.fetchall()
+        print(len(forecastet))
+
+        forecastetDict = {}
+        #transformieren in dict für bessere anwendbarkeit der ergebnisse
+        for f in forecastet:
+            forecastetDict[str(f[0])] = f
+
+        allStorables= self.env['product.product'].search([('detailed_type','=','product')])
+        for p in allStorables:
+
+            quant = self.env['stock.quant'].search([('product_id','=',p.id),('location_id','=',8)])
+            if len(quant) > 0:
+                quant = quant[0].quantity
+            else:
+                quant = 0
+            in_progress = 0
+            orders_sent = 0
+            if str(p.id) in forecastetDict.keys():
+                in_progress = forecastetDict[str(p.id)][1]
+                orders_sent = forecastetDict[str(p.id)][2]
+            to_order = - quant - in_progress - orders_sent
+            if to_order > 0 :
+                warehouse_id = 1
+                all_product_ids.append(p.id)
+                all_warehouse_ids.append(warehouse_id)
+                to_refill[(p.id, warehouse_id)] = to_order
+
+        print(len(to_refill))
+        print(to_refill)
+
         return
 
 
+                #alter code
         for p in allStorables:
             qty_INV = p.with_context({'location' : 21}).virtual_available
             if qty_INV < 0.0:
