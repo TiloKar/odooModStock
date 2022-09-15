@@ -360,6 +360,7 @@ class StockWarehouseOrderpoint(models.Model):
                     'company_id': self.env['stock.warehouse'].browse(warehouse).company_id.id,
                 })
                 orderpoint_values_list.append(orderpoint_values)
+        print(orderpoint_values_list)
         print("Marker 9")
         orderpoints = self.env['stock.warehouse.orderpoint'].with_user(SUPERUSER_ID).create(orderpoint_values_list)
         for orderpoint in orderpoints:
@@ -412,12 +413,11 @@ class StockWarehouseOrderpoint(models.Model):
         for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
             #print('#')
             #print(orderpoint_context)
-            print(orderpoints_by_context)
+
             products_qty = {
                 p['id']: p for p in orderpoints_by_context.product_id.with_context(orderpoint_context).read(['qty_available', 'virtual_available'])
             }
-            print('#')
-            print(products_qty)
+
             products_qty_in_progress = orderpoints_by_context._quantity_in_progress()
             #print('#')
             #print(products_qty_in_progress)
