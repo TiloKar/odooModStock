@@ -65,14 +65,26 @@ class StockWarehouseOrderpoint(models.Model):
 
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
-        query = """ SELECT product_id,SUM(product_qty) qty
-                    FROM stock_move
-                    WHERE location_dest_id = 8 AND state not in
-                    GROUP BY picking_id
-                    ORDER BY picking_id"""
-        self.env.cr.execute(query)
-        allInputPickings=self.env.cr.fetchall()
+        query = """
+SELECT product_id, SUM(qty) AS qty_progress FROM(
+    SELECT product_id,SUM(product_qty) AS qty
+        FROM stock_move
+        WHERE location_dest_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+        GROUP BY product_id
+    UNION ALL
+    SELECT product_id,-SUM(product_qty) AS qty
+        FROM stock_move
+        WHERE location_id = 8 and state NOT IN ('draft', 'cancel', 'done')
+        GROUP BY product_id
+    )WHERE qty_progress != 0
+    GROUP BY product_id
 
+
+                """
+        self.env.cr.execute(query)
+        moves_in_progress=self.env.cr.fetchall()
+        print(moves_in_progress)
+        return
 
 
         for p in allStorables:
