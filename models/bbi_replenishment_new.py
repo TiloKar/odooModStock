@@ -142,12 +142,12 @@ class StockWarehouseOrderpoint(models.Model):
         for o in orderpoints:
 
             print(o.product_id.virtual_available)
-        #for orderpoint in orderpoints:
-        #    orderpoint_wh = orderpoint.location_id.warehouse_id
-        #    orderpoint.route_id = next((r for r in orderpoint.product_id.route_ids if not r.supplied_wh_id or r.supplied_wh_id == orderpoint_wh), orderpoint.route_id)
-        #    if not orderpoint.route_id:
-        #        orderpoint._set_default_route_id()
-        #    orderpoint.qty_multiple = orderpoint._get_qty_multiple_to_order()
+        for orderpoint in orderpoints:
+            orderpoint_wh = orderpoint.location_id.warehouse_id
+            orderpoint.route_id = next((r for r in orderpoint.product_id.route_ids if not r.supplied_wh_id or r.supplied_wh_id == orderpoint_wh), orderpoint.route_id)
+            if not orderpoint.route_id:
+                orderpoint._set_default_route_id()
+            orderpoint.qty_multiple = orderpoint._get_qty_multiple_to_order()
 
         return action
 
@@ -177,7 +177,7 @@ class StockWarehouseOrderpoint(models.Model):
             orderpoints_contexts[product_context] |= orderpoint
             #print('#')
             #print(orderpoints_contexts)
-
+        qty_forecast_old = 0
         for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
             #print('#')
             #print(orderpoint_context)
@@ -191,7 +191,9 @@ class StockWarehouseOrderpoint(models.Model):
             #print(products_qty_in_progress)
             for orderpoint in orderpoints_by_context:
                 orderpoint.qty_on_hand = products_qty[orderpoint.product_id.id]['qty_available']
-                orderpoint.qty_forecast = orderpoint.product_id.virtual_available #EDIT HNN
+                # Um die "Falsche" Variable anzeigen zu lassen muss mein einmal alle Orderpoints löschen.
+                # Dann wird man Unterschied and Forcast und Forecast_old erkennen können.
                 #orderpoint.qty_forecast = products_qty[orderpoint.product_id.id]['virtual_available']
-
-                print("Forcast: {} | Virtual: {}".format(orderpoint.qty_forecast, orderpoint.product_id.virtual_available))
+                qty_forecast_old = products_qty[orderpoint.product_id.id]['virtual_available']
+                orderpoint.qty_forecast = orderpoint.product_id.virtual_available #EDIT HNN
+                print("Forcast_old: {} | Forcast: {} | Virtual: {}".format(qty_forecast_old,orderpoint.qty_forecast, orderpoint.product_id.virtual_available))
