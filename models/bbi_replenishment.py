@@ -66,7 +66,7 @@ class StockWarehouseOrderpoint(models.Model):
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
         query = """
-SELECT product_id, SUM(qty) AS qty_progress FROM(
+SELECT product_id, SUM(qty) AS qty_progress FROM
     SELECT product_id,SUM(product_qty) AS qty
         FROM stock_move
         WHERE location_dest_id = 8 and state NOT IN ('draft', 'cancel', 'done')
@@ -76,7 +76,7 @@ SELECT product_id, SUM(qty) AS qty_progress FROM(
         FROM stock_move
         WHERE location_id = 8 and state NOT IN ('draft', 'cancel', 'done')
         GROUP BY product_id
-    )WHERE qty_progress != 0
+    WHERE qty_progress != 0
     GROUP BY product_id
 
 
