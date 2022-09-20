@@ -22,7 +22,7 @@ class BbiReportStockQuantityMini(models.Model):
 
     def init(self):
         tools.drop_view_if_exists(self._cr, 'bbi_report_stock_quantity_mini')
-        #sicherheitshalber um bereinigen
+        #sicherheitshalber zum bereinigen, nach erstem update kann das raus
 
 #eigen kopie des reports für auffüllungs-query mod
 #im ersten select, die bedingung für date komplet tentfernt, date wird noch gebildet, aber nicht mehr zum filtern genutzt
@@ -31,40 +31,28 @@ class BbiReportStockQuantity(models.Model):
     _auto = False
     _description = 'Stock Quantity Report bbi mod for Replenishment'
 
-
     def init(self):
-        #sicherheitshalber um bereinigen
+        #sicherheitshalber zum bereinigen, nach erstem update kann das raus
         tools.drop_view_if_exists(self._cr, 'bbi_report_stock_quantity')
-
-
 
 class StockWarehouseOrderpoint(models.Model):
     _inherit = "stock.warehouse.orderpoint"
 
 
+    #original  qty_to_order ist computet und benutzt  qty_forecast und qty_multiple, product_max_qty, product_min_qty
+
+    #orderpoint.qty_on_hand und orderpoint.qty_forecast werden computet mit qty_on_hand= product_product.qty_available
+    # orderpoint.qty_forecast=product_product.virtual_available + orderpoint._quantity_in_progress
+
+    #_compute_qty_to_order nutzt forecast und melde/min bestände + losgröße um die tatsächlich zu bestellende menge auszugeben auf qty_to_order (computet)
+    # _compute_qty_to_order wird auch von stock_rule genutzt
+
+
+    #product_product.virtual_available ist          quant + in_progress (die geplante menge aller bestätigten vorgänge ohne zeiteinschränkung)
+    #product_product.qty_available ist die summer über alle chargen die tatsächlich ungenutzt im lager liegen bliebe, wenn alle geplanten verbrauche entnommen würden)
+    #product_product.free_qty ist für mich nicht nachvollziehbar, es wird niemla negativ, ist weder quant noch progress und hat auch nichts mit order am hut
+
     def _get_orderpoint_action(self):
-
-        #probelem: einige Produkte z.B. 46858 tauchen nicht auf
-        #db dump vom 14.09 dazu liegt unter  Z:\Austausch\TK
-
-
-
-
-        #eigentliche Rückgabe zum Aufbau im Frontend, wird durch manipulation auf variable orderpoints im laufeder methode verändert
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_orderpoint_replenish")
-        action['context'] = self.env.context
-
-        orderpoints = self.env['stock.warehouse.orderpoint'].with_context(active_test=False).search([])
-
-        # Remove previous automatically created orderpoint that has been refilled (purchase orders).
-
-        orderpoints_removed = orderpoints._unlink_processed_orderpoints()
-        orderpoints = orderpoints - orderpoints_removed
-        to_refill = defaultdict(float)
-        all_product_ids = []
-        all_warehouse_ids = []
-
-        allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
         query = """
 SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union.qty_order) FROM (
@@ -87,17 +75,37 @@ SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union
             INNER JOIN purchase_order ON (purchase_order.id = purchase_order_line.order_id)
                 and (purchase_order_line.display_type IS NULL)
                 and purchase_order_line.state IN ('draft', 'sent')
-            ) as WH_qty_order
+        ) as WH_qty_order
         GROUP BY product_id
     )as WH_qty_union
     GROUP BY product_id
-
-
-        """
+"""
 
         self.env.cr.execute(query)
         forecastet=self.env.cr.fetchall()
+
+        #eigentliche Rückgabe zum Aufbau im Frontend, einträge werden durch manipulation in laufeder methode verändert
+        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_orderpoint_replenish")
+        action['context'] = self.env.context
+
+        orderpoints = self.env['stock.warehouse.orderpoint'].with_context(active_test=False).search([])
+
+        #die Orderpoint Ids auflisten zur bessren verarbeitung
+        #allOrderpointIds = []
+
+        #orderpoints_removed = orderpoints._unlink_processed_orderpoints()
+        #orderpoints = orderpoints - orderpoints_removed
+        #to_refill = defaultdict(float)
+        #all_product_ids = []
+        #all_warehouse_ids = []
+        updated_orderpoint_ids = []
+
+        allStorables= self.env['product.product'].search([('detailed_type','=','product')])
+
+
         print(len(forecastet))
+
+        return
 
         forecastetDict = {}
         #transformieren in dict für bessere anwendbarkeit der ergebnisse
@@ -105,27 +113,43 @@ SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union
             forecastetDict[str(f[0])] = f
 
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
+
+
+
         for p in allStorables:
 
-            quant = self.env['stock.quant'].search([('product_id','=',p.id),('location_id','=',8)])
-            if len(quant) > 0:
-                quant = quant[0].quantity
-            else:
+            quantOdoo = self.env['stock.quant'].search([('product_id','=',p.id),('location_id','=',8)])
+            quant = 0
+            if len(quantOdoo) > 0:
                 quant = 0
+                for q in quantOdoo: quant += q.quantity #damit werden los quantities addiert
             in_progress = 0
             orders_sent = 0
             if str(p.id) in forecastetDict.keys():
                 in_progress = forecastetDict[str(p.id)][1]
                 orders_sent = forecastetDict[str(p.id)][2]
-            to_order = - quant - in_progress - orders_sent
-            if to_order > 0 :
-                warehouse_id = 1
-                all_product_ids.append(p.id)
-                all_warehouse_ids.append(warehouse_id)
-                to_refill[(p.id, warehouse_id)] = to_order
+            check_to_order = - quant - in_progress - orders_sent
+            to_order = 0
+            if check_to_order > 0 :
+                to_order = check_to_order
+                #warehouse_id = 1
+                #all_product_ids.append(p.id)
+                #all_warehouse_ids.append(warehouse_id)
+                #to_refill[(p.id, warehouse_id)] = to_order
+
+
+                calc_odoo_to_order = p.with_context({'location' : 8}).free_qty
+                try_calc = 0
+                if (quant + in_progress) > 0 :
+                    try_calc = quant
+                else:
+                    try_calc = 0
+                if calc_odoo_to_order != (try_calc):
+                    print("{} try:{} quant: {} in progress: {} orders_sent: {}".format(p.name,calc_odoo_to_order,quant,in_progress,orders_sent))
+                    return
 
         print(len(to_refill))
-        print(to_refill)
+        print("keine abweichungen")
 
         return
 
