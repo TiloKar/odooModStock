@@ -40,37 +40,12 @@ class StockWarehouseOrderpoint(models.Model):
                         'product_id': p.id,
                         'to_order' : to_order - orders_in_draft,
                     })
-                pre_values['product_id'] = p.id
-                pre_values['orders_in_draft'] = 0
+        #merker für behandelte orderpoints
+        handled_orderpoint_ids = []
 
-        # Methode an product.product nutzen um die purchase_order_lines zu prüfen und dann später von warehouse zu teilen.
-        dummy, po_draft = self.env['product.product'].browse(refill_id)._get_quantity_in_progress(warehouse_ids=(1,))
-        for (product, warehouse), product_qty in po_draft.items():
-            in_order.append(product)
-            in_order_qty.append(product_qty)
-
-        print(len(in_order))
-        print(len(in_order_new))
-
-        return
-
-        # Die noch nicht bestätigten Angebote von refill abziehen
-        temp=[]
         for r in refill:
-            if r.id in in_order:
-                index = in_order.index(r.id)
-                check = r.virtual_available + in_order_qty[index]
-                if check < 0:
-                    temp.append(r)
-            else:
-                temp.append(r)
-        refill=temp
-
-        # Orderpoint erstellen oder updaten
-        orderpoints_list =[]
-        for r in refill:
-            if r in orderpoints.product_id:
-                o = self.env['stock.warehouse.orderpoint'].search([('product_id', '=', r.id)])
+            if r['product_id'] in map(lambda ord: ord.product_id.id,orderpoints) #falls für product_id schon ein orderpoint existiert
+                o = self.env['stock.warehouse.orderpoint'].search([('product_id', '=', r['product_id'])])
                 o[0].update({'qty_to_order':(max(o[0].product_min_qty, o[0].product_max_qty) - o[0].qty_forecast)})
             else:
                 orderpoint_values= {}
