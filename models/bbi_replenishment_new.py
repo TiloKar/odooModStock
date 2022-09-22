@@ -27,8 +27,22 @@ class StockWarehouseOrderpoint(models.Model):
 
         for p in allStorables:
             pre_values = {}
+
+
             if p.virtual_available < 0.0:
                 to_order = -p.virtual_available
+
+                rounding = p.product_uom.rounding
+            if float_compare(orderpoint.qty_forecast, orderpoint.product_min_qty, precision_rounding=rounding) < 0:
+                qty_to_order = max(orderpoint.product_min_qty, orderpoint.product_max_qty) - orderpoint.qty_forecast
+
+                remainder = orderpoint.qty_multiple > 0 and qty_to_order % orderpoint.qty_multiple or 0.0
+                if float_compare(remainder, 0.0, precision_rounding=rounding) > 0:
+                    qty_to_order += orderpoint.qty_multiple - remainder
+
+
+
+
                 orders_in_draft = 0
                 dummy, po_draft = p._get_quantity_in_progress(warehouse_ids=(1,)) # Methode an product.product nutzen um die purchase_order_lines zu prüfen
                 if po_draft[p.id,1]:
