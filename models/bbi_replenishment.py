@@ -44,8 +44,12 @@ class StockWarehouseOrderpoint(models.Model):
     #orderpoint.qty_on_hand und orderpoint.qty_forecast werden computet mit qty_on_hand= product_product.qty_available
     # orderpoint.qty_forecast=product_product.virtual_available + orderpoint._quantity_in_progress
 
+#    orderpoint._quantity_in_progress ???
+
     #_compute_qty_to_order nutzt forecast und melde/min bestände + losgröße um die tatsächlich zu bestellende menge auszugeben auf qty_to_order (computet)
     # _compute_qty_to_order wird auch von stock_rule genutzt
+
+#    Wo kommen im originalskript die infos zu bereits bestehenden purchase_orders her?
 
 
     #product_product.virtual_available ist          quant + in_progress (die geplante menge aller bestätigten vorgänge ohne zeiteinschränkung)
@@ -103,9 +107,9 @@ SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
 
 
-        print(len(forecastet))
+        #print(len(forecastet))
 
-        return
+    #    return
 
         forecastetDict = {}
         #transformieren in dict für bessere anwendbarkeit der ergebnisse
@@ -128,6 +132,8 @@ SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union
             if str(p.id) in forecastetDict.keys():
                 in_progress = forecastetDict[str(p.id)][1]
                 orders_sent = forecastetDict[str(p.id)][2]
+
+            orders_sent_product = p._get_quantity_in_progress(warehouse_ids=(1,))
             check_to_order = - quant - in_progress - orders_sent
             to_order = 0
             if check_to_order > 0 :
@@ -138,12 +144,9 @@ SELECT WH_qty_union.product_id, SUM(WH_qty_union.qty_progress), SUM(WH_qty_union
                 #to_refill[(p.id, warehouse_id)] = to_order
 
 
-                calc_odoo_to_order = p.with_context({'location' : 8}).free_qty
-                try_calc = 0
-                if (quant + in_progress) > 0 :
-                    try_calc = quant
-                else:
-                    try_calc = 0
+                calc_odoo_to_order = p._get_quantity_in_progress(warehouse_ids=(1,))
+                try_calc = orders_sent
+
                 if calc_odoo_to_order != (try_calc):
                     print("{} try:{} quant: {} in progress: {} orders_sent: {}".format(p.name,calc_odoo_to_order,quant,in_progress,orders_sent))
                     return
