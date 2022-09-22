@@ -22,21 +22,37 @@ class StockWarehouseOrderpoint(models.Model):
         action['context'] = self.env.context
         orderpoints = self.env['stock.warehouse.orderpoint'].with_context(active_test=False).search([])
         allStorables= self.env['product.product'].search([('detailed_type','=','product')])
-        refill_id=[] #wird nur gebraucht um die purchase_order_lines auszulesen
-        refill=[]
+        refill=[]#dict mit allen orderpoints, die zu betrachten sind
         in_order = []
-        in_order_qty =[]
 
-        for all in allStorables:
-            if all.virtual_available< 0.0:
-                refill_id.append(all.id)
-                refill.append(all)
+        for p in allStorables:
+            pre_values = {}
+            if p.virtual_available < 0.0:
+                to_order = -p.virtual_available
+                orders_in_draft = 0
+                dummy, po_draft = p._get_quantity_in_progress(warehouse_ids=(1,)) # Methode an product.product nutzen um die purchase_order_lines zu prüfen
+                if po_draft[p.id,1]:
+                    if po_draft[p.id,1] > 0:
+                        orders_in_draft  = po_draft[p.id,1]
+
+                if to_order > orders_in_draft:
+                    refill.append({
+                        'product_id': p.id,
+                        'to_order' : to_order - orders_in_draft,
+                    })
+                pre_values['product_id'] = p.id
+                pre_values['orders_in_draft'] = 0
 
         # Methode an product.product nutzen um die purchase_order_lines zu prüfen und dann später von warehouse zu teilen.
         dummy, po_draft = self.env['product.product'].browse(refill_id)._get_quantity_in_progress(warehouse_ids=(1,))
         for (product, warehouse), product_qty in po_draft.items():
             in_order.append(product)
             in_order_qty.append(product_qty)
+
+        print(len(in_order))
+        print(len(in_order_new))
+
+        return
 
         # Die noch nicht bestätigten Angebote von refill abziehen
         temp=[]
