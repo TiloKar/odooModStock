@@ -65,7 +65,6 @@ class StockWarehouseOrderpoint(models.Model):
                 orderpoint_values['location_id']=8
                 orderpoint_values['product_id']=r.id
                 orderpoint_values['company_id']=1
-                orderpoint_values['qty_to_order']=1
                 #to_order wird nicht benötigt, da er sich das selbst berechnet
                 #if r.id in in_order:
                 #    index = in_order.index(r.id)
