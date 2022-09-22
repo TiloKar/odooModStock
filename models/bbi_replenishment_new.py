@@ -26,7 +26,12 @@ class StockWarehouseOrderpoint(models.Model):
         in_order = []
 
         for p in allStorables:
-            pre_values = {}
+            #on hand berechnen aus quants summiert über alle chargen
+            quantOdoo = self.env['stock.quant'].search([('product_id','=',p.id),('location_id','=',8)])
+            quant = 0
+            if len(quantOdoo) > 0:
+                quant = 0
+                for q in quantOdoo: quant += q.quantity #damit werden los quantities addiert
 
 
             if p.virtual_available < 0.0:
